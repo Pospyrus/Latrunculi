@@ -1,4 +1,5 @@
 ﻿using LatrunculiCore.Desk;
+using LatrunculiCore.Moves;
 using System;
 using System.Text.RegularExpressions;
 
@@ -8,10 +9,14 @@ namespace Latrunculi
     {
         static void Main(string[] args)
         {
-            var deskSize = new DeskSize(8, 7);
-            Desk desk = new Desk(deskSize);
-            var historyManager = new DeskHistoryManager(desk);
-            desk.Moved += (_, step) => historyManager.Add(step);
+            var deskSize = new DeskSize(8, 7);            
+            var allReferences = new AllPositions(deskSize);
+            DeskManager desk = new DeskManager(deskSize);
+            var rules = new RulesManager(desk, allReferences);
+            var historyManager = new DeskHistoryManager();
+            historyManager.GoingPrev += (_, changes) => desk.DoStep(changes);
+            historyManager.GoingBack += (_, changes) => desk.RevertStep(changes);
+            rules.Moved += (_, step) => historyManager.Add(step);                
             new DeskSpawner(desk).Spawn();
             DeskPrinter deskPrinter = new DeskPrinter(desk);
             HistoryPrinter historyPrinter = new HistoryPrinter(historyManager);
@@ -19,7 +24,7 @@ namespace Latrunculi
             {
                 deskPrinter.PrintDesk();
                 Console.WriteLine();
-                string actualPlayer = historyManager.Index % 2 == 0 ? "černý" : "bílý";
+                string actualPlayer = historyManager.ActualPlayer == ChessBoxState.Black ? "černý" : "bílý";
                 Console.Write($"Tah @{historyManager.Index + 2}, hraje {actualPlayer} hráč (start cíl): ");
                 string line = Console.ReadLine().Trim().ToLower();
                 try
@@ -52,9 +57,10 @@ namespace Latrunculi
                     var moveMatch = Regex.Match(line, @"^(?<from>[a-zA-Z][1-9])\s*(?<to>[a-zA-Z][1-9])$");
                     if (moveMatch.Success)
                     {
-                        ChessBoxReference from = ChessBoxReference.FromString(deskSize, moveMatch.Groups["from"].Value);
-                        ChessBoxReference to = ChessBoxReference.FromString(deskSize, moveMatch.Groups["to"].Value);
-                        desk.Move(from, to);
+                        ChessBoxPosition from = ChessBoxPosition.FromString(deskSize, moveMatch.Groups["from"].Value);
+                        ChessBoxPosition to = ChessBoxPosition.FromString(deskSize, moveMatch.Groups["to"].Value);
+                        var move = new Move(from, to);
+                        rules.Move(historyManager.ActualPlayer, move);
                     }
                     else
                     {
@@ -63,7 +69,10 @@ namespace Latrunculi
                 }
                 catch (Exception e)
                 {
+                    var previousColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(e.Message);
+                    Console.ForegroundColor = previousColor;
                 }
             }
         }

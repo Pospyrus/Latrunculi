@@ -5,17 +5,14 @@ namespace LatrunculiCore.Desk
 {
     public class DeskHistoryManager
     {
-        private Desk desk;       
+        public event EventHandler<ChangeSet> GoingPrev;
+        public event EventHandler<ChangeSet> GoingBack;
 
         public int Index { get; private set; } = -1;
-        public List<MoveStep> Steps { get; private set; } = new List<MoveStep>();
+        public List<ChangeSet> Steps { get; private set; } = new List<ChangeSet>();
+        public ChessBoxState ActualPlayer => Index % 2 == 0 ? ChessBoxState.Black : ChessBoxState.White;
 
-        public DeskHistoryManager(Desk desk)
-        {
-            this.desk = desk;
-        }
-
-        public void Add(MoveStep step)
+        public void Add(ChangeSet step)
         {
             Steps.RemoveRange(Index + 1, Steps.Count - Index - 1);
             Steps.Add(step);
@@ -48,7 +45,7 @@ namespace LatrunculiCore.Desk
         {
             while (Index > newIndex)
             {
-                desk.RevertStep(Steps[Index]);
+                GoingBack?.Invoke(this, Steps[Index]);
                 Index--;
             }
         }
@@ -57,7 +54,7 @@ namespace LatrunculiCore.Desk
         {
             while (Index < newIndex)
             {
-                desk.DoStep(Steps[Index + 1]);
+                GoingPrev?.Invoke(this, Steps[Index + 1]);
                 Index++;
             }
         }

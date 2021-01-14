@@ -23,7 +23,7 @@ namespace Latrunculi
                 string actual = (historyManager.Index + 1) == i ? " <= aktuální" : "";
                 Console.WriteLine($"# Tah @{i++}{actual}");
                 foreach (var change in step.Changes)
-                    Console.WriteLine($"# {Char.ToString((char)change.CheckBox.Letter)}{change.CheckBox.Number} původní: {change.OldState}, nová: {change.NewState}.");
+                    Console.WriteLine($"# {Char.ToString((char)change.Position.Letter)}{change.Position.Number} původní: {change.OldState}, nová: {change.NewState}.");
                 Console.WriteLine("#####################################");
             }
         }

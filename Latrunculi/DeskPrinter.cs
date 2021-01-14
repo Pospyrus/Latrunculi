@@ -6,9 +6,9 @@ namespace Latrunculi
 {
     public class DeskPrinter
     {
-        private Desk desk;
+        private DeskManager desk;
 
-        public DeskPrinter(Desk desk)
+        public DeskPrinter(DeskManager desk)
         {
             this.desk = desk;
         }
@@ -16,10 +16,10 @@ namespace Latrunculi
         public void PrintDesk()
         {
             printLineSeparator();
-            for (int y = desk.Size.Y - 1; y >= 0; y--)
+            for (int y = desk.Size.Height - 1; y >= 0; y--)
             {
                 Console.Write($"{y + 1} |");
-                for (int x = 0; x < desk.Size.X; x++)
+                for (int x = 0; x < desk.Size.Width; x++)
                 {
                     printCheckBox(desk.PlayingDesk[x, y]);
                     Console.Write("|");
@@ -34,7 +34,7 @@ namespace Latrunculi
         private void printLineSeparator()
         {
             Console.Write("  ");
-            for (int x = desk.Size.X * 4 + 1; x > 0; x--)
+            for (int x = desk.Size.Width * 4 + 1; x > 0; x--)
                 Console.Write("-");
             Console.WriteLine();
         }
@@ -42,7 +42,7 @@ namespace Latrunculi
         private void printLetters()
         {
             Console.Write("  ");
-            foreach (var i in Enumerable.Range(0, desk.Size.X))
+            foreach (var i in Enumerable.Range(0, desk.Size.Width))
             {
                 Console.Write($"  {(char)('a' + i)} ");
             }
@@ -53,16 +53,10 @@ namespace Latrunculi
             string symbol;
             switch (state)
             {
-                case ChessBoxState.BlackDame:
-                    symbol = "K";
-                    break;
-                case ChessBoxState.BlackPawn:
+                case ChessBoxState.Black:
                     symbol = "k";
                     break;
-                case ChessBoxState.WhiteDame:
-                    symbol = "W";
-                    break;
-                case ChessBoxState.WhitePawn:
+                case ChessBoxState.White:
                     symbol = "w";
                     break;
                 case ChessBoxState.Empty:
