@@ -8,7 +8,7 @@ namespace LatrunculiCore.Desk
         public readonly ChessBoxPosition From;
         public readonly ChessBoxPosition To;
 
-        public string HashCode => $"{From.Letter}{From.Number} {To.Letter}{To.Number}";
+        public string HashCode => $"{(char)From.Letter}{From.Number} {(char)To.Letter}{To.Number}";
 
         public override string ToString() => HashCode;
 

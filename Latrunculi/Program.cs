@@ -1,5 +1,8 @@
-﻿using LatrunculiCore.Desk;
+﻿using LatrunculiCore;
+using LatrunculiCore.Desk;
+using LatrunculiCore.Exceptions;
 using LatrunculiCore.Moves;
+using LatrunculiCore.Players;
 using System;
 using System.Text.RegularExpressions;
 
@@ -9,72 +12,89 @@ namespace Latrunculi
     {
         static void Main(string[] args)
         {
-            var deskSize = new DeskSize(8, 7);            
-            var allReferences = new AllPositions(deskSize);
-            DeskManager desk = new DeskManager(deskSize);
-            var rules = new RulesManager(desk, allReferences);
-            var historyManager = new DeskHistoryManager();
-            historyManager.GoingPrev += (_, changes) => desk.DoStep(changes);
-            historyManager.GoingBack += (_, changes) => desk.RevertStep(changes);
-            rules.Moved += (_, step) => historyManager.Add(step);                
-            new DeskSpawner(desk).Spawn();
-            DeskPrinter deskPrinter = new DeskPrinter(desk);
-            HistoryPrinter historyPrinter = new HistoryPrinter(historyManager);
+            Console.WriteLine("========================================");
+            Console.WriteLine("Latrunculi - @author: František Pospíšil");
+            Console.WriteLine("========================================");
+            Console.WriteLine();
+
+            var latrunculi = new LatrunculiApp();
+            HistoryPrinter historyPrinter = new HistoryPrinter(latrunculi.HistoryManager);
+            var commandManager = new CommandManager(latrunculi, historyPrinter);
+            DeskPrinter deskPrinter = new DeskPrinter(latrunculi.Desk);
+            latrunculi.WhitePlayer = commandManager.GetPlayerType(ChessBoxState.White);
+            latrunculi.BlackPlayer = commandManager.GetPlayerType(ChessBoxState.Black);
+
             while (true)
             {
-                deskPrinter.PrintDesk();
-                Console.WriteLine();
-                string actualPlayer = historyManager.ActualPlayer == ChessBoxState.Black ? "černý" : "bílý";
-                Console.Write($"Tah @{historyManager.Index + 2}, hraje {actualPlayer} hráč (start cíl): ");
-                string line = Console.ReadLine().Trim().ToLower();
                 try
                 {
-                    if (line == "history")
+                    while (true)
                     {
-                        historyPrinter.PrintHistory();
-                        Console.WriteLine("Stiskni libovolnou klávesu...");
-                        Console.ReadKey();
-                        Console.WriteLine();
-                        continue;
-                    }
-                    var historyStepMatch = Regex.Match(line, @"^history (?<direction>(prev|back))");
-                    if (historyStepMatch.Success)
-                    {
-                        string direction = historyStepMatch.Groups["direction"].Value;
-                        if (direction == "prev")
-                            historyManager.Prev();
-                        else if (direction == "back")
-                            historyManager.Back();
-                        continue;
-                    }
-                    var historyMatch = Regex.Match(line, @"^history\s+(?<historyIndex>\d+)$");
-                    if (historyMatch.Success)
-                    {
-                        if (int.TryParse(historyMatch.Groups["historyIndex"].Value, out int newHistoryIndex))
-                            historyManager.GoTo(newHistoryIndex - 1);
-                        continue;
-                    }
-                    var moveMatch = Regex.Match(line, @"^(?<from>[a-zA-Z][1-9])\s*(?<to>[a-zA-Z][1-9])$");
-                    if (moveMatch.Success)
-                    {
-                        ChessBoxPosition from = ChessBoxPosition.FromString(deskSize, moveMatch.Groups["from"].Value);
-                        ChessBoxPosition to = ChessBoxPosition.FromString(deskSize, moveMatch.Groups["to"].Value);
-                        var move = new Move(from, to);
-                        rules.Move(historyManager.ActualPlayer, move);
-                    }
-                    else
-                    {
-                        throw new InvalidCastException("Je vyžadován tah ve formátu start cíl, např. E4 E5");
+                        try
+                        {
+                            if (!latrunculi.IsEnded)
+                            {
+                                Console.WriteLine();
+                                deskPrinter.PrintDesk();
+                                string actualPlayer = latrunculi.HistoryManager.ActualPlayer == ChessBoxState.Black ? "černý" : "bílý";
+                                Console.WriteLine();
+                                Console.Write($"Tah ");
+                                WriteColored($"@{latrunculi.HistoryManager.ActualRound + 2}", ConsoleColor.Yellow);
+                                Console.Write($", hraje ");
+                                WriteColored($"{actualPlayer} ", ConsoleColor.Yellow);
+                                Console.Write($"hráč. ");
+                                var move = latrunculi.Turn();
+                                if (move != null)
+                                {
+                                    Console.Write($"Zahrán tah. ");
+                                    WriteColoredLine($"{move}", ConsoleColor.Green);
+                                }
+                            }
+                            else
+                            {
+                                Console.Write("Zadejte příkaz: ");
+                                var line = Console.ReadLine();
+                                commandManager.CheckCommand(line);
+                            }
+                        }
+                        catch (EndOfGameException e)
+                        {
+                            Console.WriteLine();
+                            deskPrinter.PrintDesk();
+                            WriteColoredLine(e.Message, ConsoleColor.Green);
+                            break;
+                        }
+                        catch (AbortGameException)
+                        {
+                            return;
+                        }
+                        catch (Exception e)
+                        {
+                            WriteColoredLine(e.Message, ConsoleColor.Red);
+                        }
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    var previousColor = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(e.Message);
-                    Console.ForegroundColor = previousColor;
+                    return;
                 }
             }
+        }
+
+        public static void WriteColoredLine(string text, ConsoleColor color)
+        {
+            var previousColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ForegroundColor = previousColor;
+        }
+
+        public static void WriteColored(string text, ConsoleColor color)
+        {
+            var previousColor = Console.ForegroundColor;
+            Console.ForegroundColor = color;
+            Console.Write(text);
+            Console.ForegroundColor = previousColor;
         }
     }
 }

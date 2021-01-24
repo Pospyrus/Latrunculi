@@ -1,4 +1,5 @@
 ﻿using LatrunculiCore.Desk;
+using LatrunculiCore.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,17 +9,17 @@ namespace LatrunculiCore.Moves
     public class RulesManager
     {
         private DeskManager desk;
-        private AllPositions allReferences;
+        private AllPositions allPositions;
 
         public event EventHandler<ChangeSet> Moved;
 
-        public RulesManager(DeskManager desk, AllPositions allReferences)
+        public RulesManager(DeskManager desk, AllPositions allPositions)
         {
             this.desk = desk;
-            this.allReferences = allReferences;
+            this.allPositions = allPositions;
         }
 
-        public bool Move(ChessBoxState actualPlayer, Move move)
+        public bool Move(ChessBoxState actualPlayer, Move move, int actualRound)
         {
             ValidateMove(actualPlayer, move);
             ChangeSet step = new ChangeSet();
@@ -29,6 +30,7 @@ namespace LatrunculiCore.Moves
             step.AddChangesRange(MoveEffects(actualPlayer, move));
             desk.DoStep(step);
             Moved?.Invoke(this, step);
+            CheckEndOfGame(actualRound);
             return true;
         }
 
@@ -70,6 +72,32 @@ namespace LatrunculiCore.Moves
             }
         }
 
+        public void CheckEndOfGame(int actualRound)
+        {
+            var blackCount = getPositionsByPlayer(ChessBoxState.Black).Count();
+            var whiteCount = getPositionsByPlayer(ChessBoxState.White).Count();
+            if (blackCount == 0)
+            {
+                throw new EndOfGameException("Konec hry. Vyhrává BÍLÝ hráč!", ChessBoxState.White);
+            }
+            if (whiteCount == 0)
+            {
+                throw new EndOfGameException("Konec hry. Vyhrává ČERNÝ hráč!", ChessBoxState.Black);
+            }
+            if (actualRound > 28)
+            {
+                if (blackCount > whiteCount)
+                {
+                    throw new EndOfGameException($"Vypršel počet kol. Vyhrává ČERNÝ hráč s {blackCount} kameny!!", ChessBoxState.Black);
+                }
+                if (blackCount > whiteCount)
+                {
+                    throw new EndOfGameException($"Vypršel počet kol. Vyhrává BÍLÝ hráč s {whiteCount} kameny!", ChessBoxState.Black);
+                }
+                throw new EndOfGameException($"Vypršel počet kol. REMÍZA, každému hráči zůstalo {whiteCount} kamenů!", ChessBoxState.Black);
+            }
+        }
+
         private IEnumerable<ChessBoxPosition> getEnemiesToRemove(ChessBoxState actualPlayer, Move move)
         {
             return getEnemiesToRemoveByDirection(actualPlayer, move.To, NeighborDirection.Horizontal)
@@ -100,7 +128,7 @@ namespace LatrunculiCore.Moves
 
         private IEnumerable<ChessBoxPosition> getPositionsByPlayer(ChessBoxState actualPlayer)
         {
-            return from ChessBoxPosition position in allReferences
+            return from ChessBoxPosition position in allPositions
                    where desk.GetState(position) == actualPlayer
                    select position;
         }
@@ -110,7 +138,6 @@ namespace LatrunculiCore.Moves
             return from ChessBoxPosition newPosition in position.GetNeighbors()
                    where desk.GetState(newPosition) == ChessBoxState.Empty
                    select new Move(position, newPosition);
-
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LatrunculiCore.Players
 {
-    public abstract class  PlayerBase : IPlayer
+    public abstract class  PlayerBase
     {
     }
 }

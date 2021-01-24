@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using LatrunculiCore.Desk;
 
 namespace LatrunculiCore.Players
 {
     public interface IPlayer
     {
-
+        Move Turn(ChessBoxState player);
     }
 }
