@@ -4,6 +4,7 @@ using LatrunculiCore.Exceptions;
 using LatrunculiCore.Moves;
 using LatrunculiCore.Players;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Latrunculi
@@ -20,7 +21,7 @@ namespace Latrunculi
             var latrunculi = new LatrunculiApp();
             HistoryPrinter historyPrinter = new HistoryPrinter(latrunculi.HistoryManager);
             var commandManager = new CommandManager(latrunculi, historyPrinter);
-            DeskPrinter deskPrinter = new DeskPrinter(latrunculi.Desk);
+            DeskPrinter deskPrinter = new DeskPrinter(latrunculi.Desk, latrunculi.HistoryManager);
             latrunculi.WhitePlayer = commandManager.GetPlayerType(ChessBoxState.White);
             latrunculi.BlackPlayer = commandManager.GetPlayerType(ChessBoxState.Black);
 
@@ -38,17 +39,18 @@ namespace Latrunculi
                                 deskPrinter.PrintDesk();
                                 string actualPlayer = latrunculi.HistoryManager.ActualPlayer == ChessBoxState.Black ? "černý" : "bílý";
                                 Console.WriteLine();
-                                Console.Write($"Tah ");
-                                WriteColored($"@{latrunculi.HistoryManager.ActualRound + 2}", ConsoleColor.Yellow);
-                                Console.Write($", hraje ");
-                                WriteColored($"{actualPlayer} ", ConsoleColor.Yellow);
-                                Console.Write($"hráč. ");
+                                WriteColoredMulti(
+                                    TextSegment($"Tah "),
+                                    TextSegment($"@{latrunculi.HistoryManager.ActualRound}", ConsoleColor.Yellow),
+                                    TextSegment($", hraje "),
+                                    TextSegment($"{actualPlayer} ", ConsoleColor.Yellow),
+                                    TextSegment($"hráč. "));
                                 var move = latrunculi.Turn();
                                 if (move != null)
                                 {
-                                    Console.Write($"Zahrán tah. ");
-                                    WriteColoredLine($"{move}", ConsoleColor.Green);
+                                    WriteColoredMulti(TextSegment("Zahrán tah "), TextSegment($"{move}", ConsoleColor.Green), TextSegment("."));
                                 }
+                                latrunculi.Rules.CheckEndOfGame(latrunculi.HistoryManager.ActualRound);
                             }
                             else
                             {
@@ -81,20 +83,41 @@ namespace Latrunculi
             }
         }
 
-        public static void WriteColoredLine(string text, ConsoleColor color)
+        public static (string text, ConsoleColor? color, ConsoleColor? backgroundColor) TextSegment(string text, ConsoleColor? color = null, ConsoleColor? backgroundColor = null) =>
+            (text, color, backgroundColor);
+
+        public static (string text, ConsoleColor? color, ConsoleColor? backgroundColor) NewLineSegment =
+            (Environment.NewLine, null, null);
+
+        public static void WriteColoredMulti(params (string text, ConsoleColor? color, ConsoleColor? backgroundColor)[] textSegments)
         {
-            var previousColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ForegroundColor = previousColor;
+            foreach (var segment in textSegments)
+            {
+                WriteColored(segment.text, segment.color, segment.backgroundColor);
+            }
         }
 
-        public static void WriteColored(string text, ConsoleColor color)
+        public static void WriteColoredLine(string text, ConsoleColor? color = null, ConsoleColor? backgroundColor = null) =>
+            coloredConsoleAction(() => Console.WriteLine(text), color, backgroundColor);
+
+        public static void WriteColored(string text, ConsoleColor? color = null, ConsoleColor? backgroundColor = null) =>
+            coloredConsoleAction(() => Console.Write(text), color, backgroundColor);
+
+        private static void coloredConsoleAction(Action action, ConsoleColor? color = null, ConsoleColor? backgroundColor = null)
         {
             var previousColor = Console.ForegroundColor;
-            Console.ForegroundColor = color;
-            Console.Write(text);
+            var previousBackgroundColor = Console.BackgroundColor;
+            if (color != null)
+            {
+                Console.ForegroundColor = color.Value;
+            }
+            if (backgroundColor != null)
+            {
+                Console.BackgroundColor = backgroundColor.Value;
+            }
+            action();
             Console.ForegroundColor = previousColor;
+            Console.BackgroundColor = previousBackgroundColor;
         }
     }
 }

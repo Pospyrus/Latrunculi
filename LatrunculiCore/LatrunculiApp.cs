@@ -16,7 +16,7 @@ namespace LatrunculiCore
 
         public IPlayer ActualPlayer => HistoryManager.ActualPlayer == ChessBoxState.Black ? BlackPlayer : WhitePlayer;
 
-        public bool IsEnded => HistoryManager.ActualRound > 28;
+        public bool IsEnded => HistoryManager.ActualRound > Rules.MaxRoundsCount;
 
         public LatrunculiApp() {
             var deskSize = new DeskSize(8, 7);            
@@ -33,7 +33,7 @@ namespace LatrunculiCore
         public Move Turn() {
             var move = this.ActualPlayer.Turn(HistoryManager.ActualPlayer);
             if (move != null) {
-                Rules.Move(HistoryManager.ActualPlayer, move, HistoryManager.ActualRound);
+                Rules.Move(HistoryManager.ActualPlayer, move);
             }
             return move;
         }

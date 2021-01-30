@@ -16,11 +16,14 @@ namespace LatrunculiCore.Desk
     public class ChessBoxPosition : IEquatable<ChessBoxPosition>
     {
         public readonly DeskSize DeskSize;
+        public string HashCode => $"{Letter}{Number}";
+
+        public override string ToString() => HashCode;
 
         public readonly int X;
         public readonly int Y;
         public int Number => Y + 1;
-        public int Letter => X + 'A';
+        public char Letter => (char)(X + 'A');
         public int Index => DeskSize.Height * X + Y;
 
         public bool Equals(ChessBoxPosition position) => position?.Index == Index;

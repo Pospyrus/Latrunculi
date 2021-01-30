@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace LatrunculiCore.Desk
 {
     public class ChangeSet
     {
         public readonly List<ChessBoxChange> Changes = new List<ChessBoxChange>();
+        public int CapturedCount => Changes.Count(change => change.IsCaptured);
 
         public ChangeSet()
         {

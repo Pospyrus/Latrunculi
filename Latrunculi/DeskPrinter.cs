@@ -7,10 +7,12 @@ namespace Latrunculi
     public class DeskPrinter
     {
         private DeskManager desk;
+        private DeskHistoryManager historyManager;
 
-        public DeskPrinter(DeskManager desk)
+        public DeskPrinter(DeskManager desk, DeskHistoryManager historyManager)
         {
             this.desk = desk;
+            this.historyManager = historyManager;
         }
 
         public void PrintDesk()
@@ -21,7 +23,7 @@ namespace Latrunculi
                 Console.Write($"{y + 1} |");
                 for (int x = 0; x < desk.Size.Width; x++)
                 {
-                    printCheckBox(desk.PlayingDesk[x, y]);
+                    printCheckBox(new ChessBoxPosition(desk.Size, x, y));
                     Console.Write("|");
                 }
                 Console.WriteLine();
@@ -48,13 +50,32 @@ namespace Latrunculi
             }
         }
 
-        private void printCheckBox(ChessBoxState state)
+        private void printCheckBox(ChessBoxPosition position)
         {
+            var lastChange = historyManager.LastStep?.Changes.Find(change => change.Position.Index == position.Index);
+            var state = desk.PlayingDesk[position.X, position.Y];
+            ConsoleColor? color = null;
+            ConsoleColor? backgroundColor = null;
             string symbol;
+            if (lastChange != null)
+            {
+                if (lastChange.IsCaptured == true)
+                {
+                    backgroundColor = ConsoleColor.Red;
+                }
+                else if (lastChange.NewState == ChessBoxState.Empty)
+                {
+                    backgroundColor = ConsoleColor.DarkGray;
+                }
+                else if (lastChange.NewState == state)
+                {
+                    color = ConsoleColor.Green;
+                }
+            }
             switch (state)
             {
                 case ChessBoxState.Black:
-                    symbol = "k";
+                    symbol = "b";
                     break;
                 case ChessBoxState.White:
                     symbol = "w";
@@ -64,7 +85,7 @@ namespace Latrunculi
                     symbol = " ";
                     break;
             }
-            Console.Write($" {symbol} ");
+            Program.WriteColored($" {symbol} ", color, backgroundColor);
         }
     }
 }

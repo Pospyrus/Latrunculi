@@ -5,5 +5,6 @@
         public ChessBoxPosition Position { get; set; }
         public ChessBoxState OldState { get; set; }
         public ChessBoxState NewState { get; set; }
+        public bool IsCaptured { get; set; }
     }
 }

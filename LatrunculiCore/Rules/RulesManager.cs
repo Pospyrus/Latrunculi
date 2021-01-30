@@ -13,13 +13,15 @@ namespace LatrunculiCore.Moves
 
         public event EventHandler<ChangeSet> Moved;
 
+        public int MaxRoundsCount => 30;
+
         public RulesManager(DeskManager desk, AllPositions allPositions)
         {
             this.desk = desk;
             this.allPositions = allPositions;
         }
 
-        public bool Move(ChessBoxState actualPlayer, Move move, int actualRound)
+        public bool Move(ChessBoxState actualPlayer, Move move)
         {
             ValidateMove(actualPlayer, move);
             ChangeSet step = new ChangeSet();
@@ -29,8 +31,7 @@ namespace LatrunculiCore.Moves
             step.AddChange(move.To, stateTo, stateFrom);
             step.AddChangesRange(MoveEffects(actualPlayer, move));
             desk.DoStep(step);
-            Moved?.Invoke(this, step);
-            CheckEndOfGame(actualRound);
+            Moved?.Invoke(this, step);            
             return true;
         }
 
@@ -67,7 +68,8 @@ namespace LatrunculiCore.Moves
                 {
                     Position = enemyToRemove,
                     OldState = desk.GetState(enemyToRemove),
-                    NewState = ChessBoxState.Empty
+                    NewState = ChessBoxState.Empty,
+                    IsCaptured = true
                 };
             }
         }
@@ -84,7 +86,7 @@ namespace LatrunculiCore.Moves
             {
                 throw new EndOfGameException("Konec hry. Vyhrává ČERNÝ hráč!", ChessBoxState.Black);
             }
-            if (actualRound > 28)
+            if (actualRound > MaxRoundsCount)
             {
                 if (blackCount > whiteCount)
                 {
