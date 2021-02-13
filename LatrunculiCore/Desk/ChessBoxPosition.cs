@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace LatrunculiCore.Desk
 {
@@ -15,23 +16,36 @@ namespace LatrunculiCore.Desk
 
     public class ChessBoxPosition : IEquatable<ChessBoxPosition>
     {
+        [JsonInclude]
         public readonly DeskSize DeskSize;
+        
+        [JsonIgnore]
         public string HashCode => $"{Letter}{Number}";
 
         public override string ToString() => HashCode;
 
+        [JsonInclude]
         public readonly int X;
+
+        [JsonInclude]
         public readonly int Y;
+        
+        [JsonIgnore]
         public int Number => Y + 1;
+        
+        [JsonIgnore]
         public char Letter => (char)(X + 'A');
+
+        [JsonIgnore]
         public int Index => DeskSize.Height * X + Y;
 
-        public bool Equals(ChessBoxPosition position) => position?.Index == Index;
+        [JsonIgnore]
         public bool IsCorner => X == 0 && Y == 0 ||
                                 X == DeskSize.Width - 1 && Y == 0 ||
                                 X == 0 && Y == DeskSize.Height - 1 ||
                                 X == DeskSize.Width - 1 && Y == DeskSize.Height - 1;
 
+        [JsonConstructor]
         public ChessBoxPosition(DeskSize deskSize, int x, int y)
         {
             if (deskSize == null)
@@ -44,6 +58,8 @@ namespace LatrunculiCore.Desk
             X = x;
             Y = y;
         }
+
+        public bool Equals(ChessBoxPosition position) => position?.Index == Index;
 
         public static bool IsValidPosition(DeskSize deskSize, int x, int y)
         {

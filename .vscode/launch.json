@@ -11,10 +11,10 @@
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/Latrunculi/bin/Debug/netcoreapp5.0/Latrunculi.dll",
-            "args": [],
+            "args": ["human", "minimax2"],
             "cwd": "${workspaceFolder}/Latrunculi",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
-            "console": "internalConsole",
+            "console": "integratedTerminal",
             "stopAtEntry": false
         },
         {

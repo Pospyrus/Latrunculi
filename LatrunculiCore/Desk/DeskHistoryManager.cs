@@ -13,6 +13,7 @@ namespace LatrunculiCore.Desk
         public List<ChangeSet> Steps { get; private set; } = new List<ChangeSet>();
         public ChangeSet LastStep => HistoryIndex >= 0 ? Steps[HistoryIndex] : null;
         public ChessBoxState ActualPlayer => HistoryIndex % 2 == 0 ? ChessBoxState.Black : ChessBoxState.White;
+        public ChessBoxState EnemyPlayer => ActualPlayer == ChessBoxState.White ? ChessBoxState.Black : ChessBoxState.White;
 
         public void Add(ChangeSet step)
         {
@@ -35,12 +36,19 @@ namespace LatrunculiCore.Desk
 
         public void GoTo(int newIndex)
         {
-            if (newIndex < 0 || newIndex > Steps.Count - 1)
+            if (newIndex < -1 || newIndex > Steps.Count - 1)
                 throw new ArgumentException($"Číslo tahu musí být v rozmezí 0 až {Steps.Count}.");
             if (newIndex > HistoryIndex)
                 goHistoryForwardTo(newIndex);
             else
                 goHistoryBackTo(newIndex);
+        }
+
+        public void LoadHistory(List<ChangeSet> steps)
+        {
+            GoTo(-1);
+            Steps = steps;
+            GoTo(Steps.Count + -1);
         }
 
         private void goHistoryBackTo(int newIndex)

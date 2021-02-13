@@ -1,20 +1,29 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace LatrunculiCore.Desk
 {
     public class ChangeSet
     {
-        public readonly List<ChessBoxChange> Changes = new List<ChessBoxChange>();
+        [JsonInclude]
+        public readonly List<ChessBoxChange> Changes;
+
+        [JsonInclude]
+        public readonly Move Move;
+
+        [JsonIgnore]
         public int CapturedCount => Changes.Count(change => change.IsCaptured);
 
-        public ChangeSet()
+        public ChangeSet(Move move): this(move, null)
         {
         }
 
-        public ChangeSet(IEnumerable<ChessBoxChange> changes)
+        [JsonConstructor]
+        public ChangeSet(Move move, List<ChessBoxChange> changes)
         {
-            Changes.AddRange(changes);
+            Move = move;
+            Changes = changes?.ToList() ?? new List<ChessBoxChange>();
         }
 
         public void AddChange(ChessBoxPosition checkBox, ChessBoxState oldState, ChessBoxState newState)

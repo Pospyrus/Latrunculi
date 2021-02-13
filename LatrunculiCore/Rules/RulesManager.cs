@@ -10,28 +10,30 @@ namespace LatrunculiCore.Moves
     {
         private DeskManager desk;
         private AllPositions allPositions;
+        private DeskHistoryManager historyManager;
 
         public event EventHandler<ChangeSet> Moved;
 
-        public int MaxRoundsCount => 30;
+        public int MaxEmptyRoundsCount => 30;
 
-        public RulesManager(DeskManager desk, AllPositions allPositions)
+        public RulesManager(DeskManager desk, AllPositions allPositions, DeskHistoryManager historyManager)
         {
             this.desk = desk;
             this.allPositions = allPositions;
+            this.historyManager = historyManager;
         }
 
         public bool Move(ChessBoxState actualPlayer, Move move)
         {
             ValidateMove(actualPlayer, move);
-            ChangeSet step = new ChangeSet();
+            ChangeSet step = new ChangeSet(move);
             ChessBoxState stateFrom = desk.GetState(move.From);
             ChessBoxState stateTo = desk.GetState(move.To);
             step.AddChange(move.From, stateFrom, ChessBoxState.Empty);
             step.AddChange(move.To, stateTo, stateFrom);
             step.AddChangesRange(MoveEffects(actualPlayer, move));
             desk.DoStep(step);
-            Moved?.Invoke(this, step);            
+            Moved?.Invoke(this, step);
             return true;
         }
 
@@ -51,7 +53,7 @@ namespace LatrunculiCore.Moves
 
         public IEnumerable<Move> GetAllValidMoves(ChessBoxState actualPlayer)
         {
-            foreach (var position in getPositionsByPlayer(actualPlayer))
+            foreach (var position in GetPositionsByPlayer(actualPlayer))
             {
                 foreach (var move in getValidMovesFromPosition(position))
                 {
@@ -74,10 +76,10 @@ namespace LatrunculiCore.Moves
             }
         }
 
-        public void CheckEndOfGame(int actualRound)
+        public void CheckEndOfGame()
         {
-            var blackCount = getPositionsByPlayer(ChessBoxState.Black).Count();
-            var whiteCount = getPositionsByPlayer(ChessBoxState.White).Count();
+            var blackCount = GetPositionsByPlayer(ChessBoxState.Black).Count();
+            var whiteCount = GetPositionsByPlayer(ChessBoxState.White).Count();
             if (blackCount == 0)
             {
                 throw new EndOfGameException("Konec hry. Vyhrává BÍLÝ hráč!", ChessBoxState.White);
@@ -86,19 +88,22 @@ namespace LatrunculiCore.Moves
             {
                 throw new EndOfGameException("Konec hry. Vyhrává ČERNÝ hráč!", ChessBoxState.Black);
             }
-            if (actualRound > MaxRoundsCount)
+            if (isEndByEmptyRounds())
             {
                 if (blackCount > whiteCount)
                 {
-                    throw new EndOfGameException($"Vypršel počet kol. Vyhrává ČERNÝ hráč s {blackCount} kameny!!", ChessBoxState.Black);
+                    throw new EndOfGameException($"Konec hry. Již {MaxEmptyRoundsCount} počet kol nikdo nevyhodil figurku. Vyhrává ČERNÝ hráč s {blackCount} kameny!", ChessBoxState.Black);
                 }
                 if (blackCount > whiteCount)
                 {
-                    throw new EndOfGameException($"Vypršel počet kol. Vyhrává BÍLÝ hráč s {whiteCount} kameny!", ChessBoxState.Black);
+                    throw new EndOfGameException($"Konec hry. Již {MaxEmptyRoundsCount} počet kol nikdo nevyhodil figurku. Vyhrává BÍLÝ hráč s {whiteCount} kameny!", ChessBoxState.White);
                 }
-                throw new EndOfGameException($"Vypršel počet kol. REMÍZA, každému hráči zůstalo {whiteCount} kamenů!", ChessBoxState.Black);
+                throw new EndOfGameException($"Konec hry. Již {MaxEmptyRoundsCount} počet kol nikdo nevyhodil figurku. REMÍZA, každému hráči zůstalo {whiteCount} kamenů!", ChessBoxState.Black);
             }
         }
+
+        private bool isEndByEmptyRounds()
+            => historyManager.ActualRound > MaxEmptyRoundsCount && !historyManager.Steps.Take(historyManager.HistoryIndex).TakeLast(MaxEmptyRoundsCount).Any(step => step.CapturedCount > 0);
 
         private IEnumerable<ChessBoxPosition> getEnemiesToRemove(ChessBoxState actualPlayer, Move move)
         {
@@ -128,7 +133,7 @@ namespace LatrunculiCore.Moves
 
         private ChessBoxState getEnemyPlayer(ChessBoxState player) => player == ChessBoxState.Black ? ChessBoxState.White : ChessBoxState.Black;
 
-        private IEnumerable<ChessBoxPosition> getPositionsByPlayer(ChessBoxState actualPlayer)
+        public IEnumerable<ChessBoxPosition> GetPositionsByPlayer(ChessBoxState actualPlayer)
         {
             return from ChessBoxPosition position in allPositions
                    where desk.GetState(position) == actualPlayer

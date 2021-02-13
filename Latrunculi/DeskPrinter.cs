@@ -35,10 +35,7 @@ namespace Latrunculi
 
         private void printLineSeparator()
         {
-            Console.Write("  ");
-            for (int x = desk.Size.Width * 4 + 1; x > 0; x--)
-                Console.Write("-");
-            Console.WriteLine();
+            Console.WriteLine($"  {new String('-', desk.Size.Width * 4 + 1)}");
         }
 
         private void printLetters()

@@ -20,10 +20,16 @@ namespace Latrunculi
 
             var latrunculi = new LatrunculiApp();
             HistoryPrinter historyPrinter = new HistoryPrinter(latrunculi.HistoryManager);
-            var commandManager = new CommandManager(latrunculi, historyPrinter);
             DeskPrinter deskPrinter = new DeskPrinter(latrunculi.Desk, latrunculi.HistoryManager);
-            latrunculi.WhitePlayer = commandManager.GetPlayerType(ChessBoxState.White);
-            latrunculi.BlackPlayer = commandManager.GetPlayerType(ChessBoxState.Black);
+            var commandManager = new CommandManager(latrunculi, historyPrinter, deskPrinter);
+
+            latrunculi.WhitePlayer =
+                commandManager.createPlayerByType(args.FirstOrDefault()) ??
+                commandManager.GetPlayerType(ChessBoxState.White);
+
+            latrunculi.BlackPlayer =
+                commandManager.createPlayerByType(args.Skip(1).FirstOrDefault()) ??
+                commandManager.GetPlayerType(ChessBoxState.Black);
 
             while (true)
             {
@@ -50,7 +56,7 @@ namespace Latrunculi
                                 {
                                     WriteColoredMulti(TextSegment("Zahrán tah "), TextSegment($"{move}", ConsoleColor.Green), TextSegment("."));
                                 }
-                                latrunculi.Rules.CheckEndOfGame(latrunculi.HistoryManager.ActualRound);
+                                latrunculi.Rules.CheckEndOfGame();
                             }
                             else
                             {
