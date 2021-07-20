@@ -11,6 +11,8 @@ namespace LatrunculiCore.Logger
 
         private StreamWriter stream;
 
+        public readonly string name;
+
         public static void init(string appDataFolder) {
             logFolder = $@"{appDataFolder}\Logs\Latrunculi {DateTime.Now.ToString("dd. MM. yyyy HH.mm.ss")}";
             instance = new FileLogger("main");
@@ -18,11 +20,15 @@ namespace LatrunculiCore.Logger
 
         public FileLogger(string name)
         {
-            initFileStream(name);
+            this.name = name;
         }
 
-        private void initFileStream(string logFileName)
+        private void initFileStream()
         {
+            if (stream != null)
+            {
+                return;
+            }
             if (string.IsNullOrEmpty(logFolder))
             {
                 throw new InvalidOperationException($"{nameof(FileLogger)} is not initialized.");
@@ -31,7 +37,7 @@ namespace LatrunculiCore.Logger
             {
                 Directory.CreateDirectory(logFolder);
             }
-            stream = new StreamWriter($@"{logFolder}\{logFileName}.log");
+            stream = new StreamWriter($@"{logFolder}\{name}.log");
         }
 
         public static void WriteGlobal(string text, int indentation = 0) =>
@@ -42,11 +48,13 @@ namespace LatrunculiCore.Logger
 
         public void Write(string text, int indentation = 0)
         {
+            initFileStream();
             stream.Write(new String(' ', indentation * 4) + text);
         }
 
         public void WriteLine(string text, int indentation = 0)
         {
+            initFileStream();
             foreach (var line in text.Split('\n'))
             {
                 stream.WriteLine(new String(' ', indentation * 4) + line);

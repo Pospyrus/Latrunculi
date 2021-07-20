@@ -19,5 +19,10 @@ namespace LatrunculiCore.Players
             var validMoves = rulesManager.GetAllValidMoves(player);
             return validMoves.Skip(random.Next(validMoves.Count()) - 1).First();
         }
+
+        public override string ToString()
+        {
+            return nameof(RandomPlayer);
+        }
     }
 }

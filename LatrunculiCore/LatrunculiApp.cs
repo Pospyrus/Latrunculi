@@ -19,6 +19,7 @@ namespace LatrunculiCore
         public readonly RulesManager Rules;
         public readonly SaveGameManager SaveGameManager;
 
+        public bool BestMovesDebug = true;
         public bool Debug = false;
 
         public IPlayer WhitePlayer;

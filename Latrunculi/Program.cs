@@ -50,7 +50,7 @@ namespace Latrunculi
                                     TextSegment($"@{latrunculi.HistoryManager.ActualRound}", ConsoleColor.Yellow),
                                     TextSegment($", hraje "),
                                     TextSegment($"{actualPlayer} ", ConsoleColor.Yellow),
-                                    TextSegment($"hráč. "));
+                                    TextSegment($"hráč ({latrunculi.ActualPlayer.ToString()}). "));
                                 var move = latrunculi.Turn();
                                 if (move != null)
                                 {
@@ -70,6 +70,7 @@ namespace Latrunculi
                             Console.WriteLine();
                             deskPrinter.PrintDesk();
                             WriteColoredLine(e.Message, ConsoleColor.Green);
+                            WriteColoredLine("Engine: " + (e.Winner == ChessBoxState.Black ? latrunculi.BlackPlayer : latrunculi.WhitePlayer).ToString(), ConsoleColor.Gray);
                             break;
                         }
                         catch (AbortGameException)

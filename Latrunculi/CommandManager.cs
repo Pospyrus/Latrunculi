@@ -12,6 +12,7 @@ namespace Latrunculi
         private HistoryPrinter historyPrinter;
         private LatrunculiApp app;
         private DeskPrinter deskPrinter;
+        private IPlayer helpPlayer;
 
         public CommandManager(LatrunculiApp app, HistoryPrinter historyPrinter, DeskPrinter deskPrinter)
         {
@@ -20,15 +21,18 @@ namespace Latrunculi
             this.deskPrinter = deskPrinter;
             this.playerTypes = new Dictionary<string, Func<IPlayer>>()
             {
-                ["human"] = () => createHumanPlayer,
-                ["random"] = () => createRandomPlayer,
-                ["minimax4"] = () => createMiniMaxPlayer4,
-                ["minimax2"] = () => createMiniMaxPlayer2
+                ["human"] = () => createHumanPlayer(),
+                ["random"] = () => createRandomPlayer(),
+                ["minimax2"] = () => createMiniMaxPlayer(2),
+                ["minimax4"] = () => createMiniMaxPlayer(4),
+                ["minimax3"] = () => createMiniMaxPlayer(3)
             };
+            this.helpPlayer = createMiniMaxPlayer(3);
         }
 
         public bool CheckCommand(string line)
         {
+            line = line?.ToLower();
             if (line == "history")
             {
                 historyPrinter.PrintHistory();
@@ -37,11 +41,12 @@ namespace Latrunculi
                 Console.WriteLine();
                 return true;
             }
-            var debugModeMatch = Regex.Match(line, @"debug (?<value>)(true|1|on|false|0|off)");
+            var debugModeMatch = Regex.Match(line, @"debug (?<value>(true|1|on|false|0|off))");
             if (debugModeMatch.Success)
             {
                 string value = debugModeMatch.Groups["value"].Value.ToLower();
                 app.Debug = value == "true" || value == "1" || value == "on";
+                return true;
             }
             var historyStepMatch = Regex.Match(line, @"^history\s+(?<direction>(prev|back))");
             if (historyStepMatch.Success)
@@ -53,11 +58,40 @@ namespace Latrunculi
                     app.HistoryManager.Back();
                 return true;
             }
+            var helpMatch = Regex.Match(line, @"^help(\s+?<playerType>(\w+)?)?");
+            if (helpMatch.Success)
+            {
+                var playerType = helpMatch.Groups["playerType"].Value?.ToLower();
+                var player = helpPlayer;
+                if (playerType != null && playerTypes.TryGetValue(playerType, out var playerFactory) && playerFactory != null)
+                {
+                    player = playerFactory();
+                }
+                var bestMove = player.Turn(app.HistoryManager.ActualPlayer);
+                if (bestMove != null)
+                {
+                    Program.WriteColoredMulti(
+                        Program.TextSegment("Dobrý tah by mohl být "),
+                        Program.TextSegment(bestMove.ToString(), ConsoleColor.Yellow),
+                        Program.TextSegment("."),
+                        Program.NewLineSegment
+                    );
+                }
+                else
+                {
+                    Console.WriteLine("Promiň. Nevím jak hrát.");
+                }
+                Console.WriteLine("Stiskni libovolnou klávesu...");
+                Console.ReadKey();
+                return true;
+            }
             var historyMatch = Regex.Match(line, @"^history\s+(?<historyIndex>\d+)$");
             if (historyMatch.Success)
             {
                 if (int.TryParse(historyMatch.Groups["historyIndex"].Value, out int newHistoryIndex))
+                {
                     app.HistoryManager.GoTo(newHistoryIndex - 1);
+                }
                 return true;
             }
             var saveMatch = Regex.Match(line, @"^save\s+(?<name>.*)");
@@ -90,6 +124,30 @@ namespace Latrunculi
                 }
                 return true;
             }
+            var changePlayerTypeMatch = Regex.Match(line, @"^\s*player\s+(?<player>\w+)\s+(?<playerType>\w+)\s*$");
+            if (changePlayerTypeMatch.Success)
+            {
+                var player = changePlayerTypeMatch.Groups["player"].Value;
+                var playerType = changePlayerTypeMatch.Groups["playerType"].Value;
+                
+                var newPlayer = createPlayerByType(playerType);
+                if (newPlayer == null)
+                {
+                    Program.WriteColoredLine($"Typ hráče {playerType} neexistuje.", ConsoleColor.Red);
+                    return true;
+                }
+
+                player = player?.Trim().ToLower();
+                if (player == "black")
+                {
+                    app.BlackPlayer = newPlayer;
+                }
+                else if (player == "white")
+                {
+                    app.WhitePlayer = newPlayer;
+                }
+                return true;
+            }
             return false;
         }
 
@@ -112,6 +170,7 @@ namespace Latrunculi
 
         public IPlayer createPlayerByType(string playerType)
         {
+            playerType = playerType?.Trim().ToLower();
             if (playerType == null || !this.playerTypes.ContainsKey(playerType))
             {
                 return null;
@@ -121,38 +180,20 @@ namespace Latrunculi
 
         private Dictionary<string, Func<IPlayer>> playerTypes;
 
-        private IPlayer createHumanPlayer =>
+        private IPlayer createHumanPlayer() =>
             new ConsolePlayer(historyPrinter, app.HistoryManager, app.Desk.Size, this);
 
-        private IPlayer createRandomPlayer =>
+        private IPlayer createRandomPlayer() =>
             new RandomPlayer(app.Rules);
 
-        private IPlayer createMiniMaxPlayer4
+        private IPlayer createMiniMaxPlayer(int depth)
         {
-            get
+            var player = new MiniMaxPlayer(depth, app);
+            player.DebugPrintDesk += (_, __) =>
             {
-                var player = new MiniMaxPlayer(4, app);
-                player.DebugPrintDesk += (_, __) =>
-                {
-                    deskPrinter.PrintDesk();
-                    // Console.ReadKey();
-                };
-                return player;
-            }
-        }
-
-        private IPlayer createMiniMaxPlayer2
-        {
-            get
-            {
-                var player = new MiniMaxPlayer(2, app);
-                player.DebugPrintDesk += (_, __) =>
-                {
-                    deskPrinter.PrintDesk();
-                    // Console.ReadKey();
-                };
-                return player;
-            }
+                deskPrinter.PrintDesk();
+            };
+            return player;
         }
 
         public string GetValidValue(string message, Func<string, bool> validateAction)

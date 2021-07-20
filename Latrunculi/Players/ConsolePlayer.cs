@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace LatrunculiCore.Players
 {
-    public class ConsolePlayer: IPlayer
+    public class ConsolePlayer : IPlayer
     {
         private HistoryPrinter historyPrinter;
         private DeskHistoryManager historyManager;
@@ -22,7 +22,7 @@ namespace LatrunculiCore.Players
 
         public Move Turn(ChessBoxState player)
         {
-            Console.Write("Váš tah (start cíl): "); 
+            Console.Write("Váš tah (start cíl): ");
             string line = Console.ReadLine().Trim().ToLower();
             if (commandManager.CheckCommand(line))
             {
@@ -39,6 +39,11 @@ namespace LatrunculiCore.Players
             {
                 throw new InvalidCastException("Je vyžadován tah ve formátu start cíl, např. E4 E5");
             }
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(ConsolePlayer)}";
         }
     }
 }
