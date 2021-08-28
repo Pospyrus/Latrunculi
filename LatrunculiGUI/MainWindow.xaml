@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LatrunculiGUI" xmlns:board="clr-namespace:LatrunculiGUI.Components.Board"
         mc:Ignorable="d"
+        KeyDown="handleKeyDown"
         Title="Latrunculi" Height="450" Width="800">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -15,6 +16,6 @@
             <RowDefinition x:Name="header" Height="Auto" />
             <RowDefinition x:Name="content" />
         </Grid.RowDefinitions>
-        <board:Board Grid.Row="2" Grid.Column="2" App="{Binding App}" />
+        <board:Board Grid.Row="2" Grid.Column="2" Game="{Binding}" />
     </Grid>
 </Window>

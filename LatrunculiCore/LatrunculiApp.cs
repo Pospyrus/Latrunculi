@@ -12,7 +12,7 @@ using LatrunculiCore.SaveGame;
 
 namespace LatrunculiCore
 {
-    public class LatrunculiApp
+    public class LatrunculiApp : INotifyPropertyChanged
     {
         public DeskManager Desk { get; private set; }
         public AllPositions AllPositions { get; private set; }
@@ -22,12 +22,14 @@ namespace LatrunculiCore
 
         public bool BestMovesDebug = true;
         public bool Debug = false;
+        public bool IsCalculatingHelp { get; set; }
 
         public IPlayer WhitePlayer;
         public IPlayer BlackPlayer;
 
         public IPlayer ActualPlayer => HistoryManager.ActualPlayer == ChessBoxState.Black ? BlackPlayer : WhitePlayer;
 
+        public event PropertyChangedEventHandler PropertyChanged;
         public bool IsEnded
         {
             get
@@ -53,6 +55,13 @@ namespace LatrunculiCore
             var deskSize = new DeskSize(8, 7);
             AllPositions = new AllPositions(deskSize);
             Desk = new DeskManager(deskSize);
+            Desk.DeskChanged += (__, _) =>
+            {
+                if (!IsCalculatingHelp)
+                {
+                    notifyPropertyChanged(nameof(Desk));
+                }
+            };
             HistoryManager = new DeskHistoryManager();
             HistoryManager.GoingPrev += (_, changes) => Desk.DoStep(changes);
             HistoryManager.GoingBack += (_, changes) => Desk.RevertStep(changes);
@@ -64,7 +73,7 @@ namespace LatrunculiCore
 
         public Move Turn()
         {
-            var move = this.ActualPlayer.Turn(HistoryManager.ActualPlayer);
+            var move = ActualPlayer.Turn(HistoryManager.ActualPlayer);
             if (move != null)
             {
                 Rules.Move(HistoryManager.ActualPlayer, move);
@@ -80,6 +89,11 @@ namespace LatrunculiCore
                 Directory.CreateDirectory(appDataFolder);
             }
             return appDataFolder;
+        }
+
+        protected void notifyPropertyChanged(string attrName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(attrName));
         }
     }
 }

@@ -9,7 +9,6 @@
              xmlns:box="clr-namespace:LatrunculiGUI.Components.Box"
              mc:Ignorable="d" 
              x:Name="control"
-             Loaded="handleLoaded"
              d:DesignHeight="450" d:DesignWidth="800">
     <Control.Resources>
         <utils:BoxFillColorConverter x:Key="fillConverter" />
@@ -23,7 +22,7 @@
                 <MultiBinding Converter="{StaticResource boxSizeConverter}">
                     <Binding Path="ActualWidth" Source="{x:Reference control}" />
                     <Binding Path="ActualHeight" Source="{x:Reference control}" />
-                    <Binding Path="DataContext.App.Desk.Size" Source="{x:Reference control}" />
+                    <Binding Path="Game.Latrunculi.Desk.Size" Source="{x:Reference control}" />
                 </MultiBinding>
             </utils:BindingProperty.Value>
         </utils:BindingProperty>
@@ -31,12 +30,12 @@
             <utils:BindingProperty.Value>
                 <MultiBinding Converter="{StaticResource deskSizeConverter}">
                     <Binding Path="Value" Source="{StaticResource boxSize}" />
-                    <Binding Path="DataContext.App.Desk.Size" Source="{x:Reference control}" />
+                    <Binding Path="Game.Latrunculi.Desk.Size" Source="{x:Reference control}" />
                 </MultiBinding>
             </utils:BindingProperty.Value>
         </utils:BindingProperty>
     </Control.Resources>
-    <ItemsControl x:Name="boxes" ItemsSource="{Binding App.AllPositions}" Background="Gray" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+    <ItemsControl x:Name="boxes" ItemsSource="{Binding Latrunculi.AllPositions}" Background="Gray" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                   Width="{Binding Value.Width, Source={StaticResource deskSize}}"
                   Height="{Binding Value.Height, Source={StaticResource deskSize}}">
         <ItemsControl.ItemsPanel>
@@ -73,7 +72,7 @@
                     Position="{Binding}">
                     <box:Box.ChessState>
                         <MultiBinding Converter="{StaticResource boxStateConverter}">
-                            <Binding Path="App.Desk.Bind" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
+                            <Binding Path="Game.Latrunculi.Desk" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
                             <Binding />
                         </MultiBinding>
                     </box:Box.ChessState>
@@ -81,7 +80,7 @@
                         <MultiBinding Converter="{StaticResource boxGuiStateConverter}">
                             <Binding />
                             <Binding Path="ActivePosition" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
-                            <Binding Path="HelpMove" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
+                            <Binding Path="Game.HelpMove" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
                         </MultiBinding>
                     </box:Box.GuiState>
                 </box:Box>

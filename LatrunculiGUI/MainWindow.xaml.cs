@@ -1,4 +1,6 @@
 ﻿using LatrunculiCore;
+using LatrunculiCore.Desk;
+using LatrunculiCore.Players;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +23,21 @@ namespace LatrunculiGUI
     /// </summary>
     public partial class MainWindow : Window
     {
-        public LatrunculiApp App { get; set; }
+        public GameContext Game { get; private set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            App = new LatrunculiApp();
-            DataContext = this;
+            Game = new GameContext(new LatrunculiApp());
+            DataContext = Game;
+        }
+
+        private void handleKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.H)
+            {
+                Game.GetHelp();
+            }
         }
     }
 }

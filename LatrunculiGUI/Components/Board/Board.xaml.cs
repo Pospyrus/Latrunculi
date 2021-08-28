@@ -21,28 +21,21 @@ namespace LatrunculiGUI.Components.Board
     /// </summary>
     public partial class Board : UserControl, INotifyPropertyChanged
     {
-        public static readonly DependencyProperty AppProperty = DependencyProperty.Register(nameof(App), typeof(LatrunculiApp), typeof(Board), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty GameProperty = DependencyProperty.Register(nameof(Game), typeof(GameContext), typeof(Board), new FrameworkPropertyMetadata(null));
         public static readonly DependencyProperty ActivePositionProperty = DependencyProperty.Register(nameof(ActivePosition), typeof(ChessBoxPosition), typeof(Board), new FrameworkPropertyMetadata(null));
-        public static readonly DependencyProperty HelpMoveProperty = DependencyProperty.Register(nameof(HelpMove), typeof(Move), typeof(Board), new FrameworkPropertyMetadata(null));
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public LatrunculiApp App
+        public GameContext Game
         {
-            get { return (LatrunculiApp)GetValue(AppProperty); }
-            set { SetValue(AppProperty, value); }
+            get { return (GameContext)GetValue(GameProperty); }
+            set { SetValue(GameProperty, value); }
         }
 
         public ChessBoxPosition ActivePosition
         {
             get { return (ChessBoxPosition)GetValue(ActivePositionProperty); }
             set { SetValue(ActivePositionProperty, value); }
-        }
-
-        public Move HelpMove
-        {
-            get { return (Move)GetValue(HelpMoveProperty); }
-            set { SetValue(HelpMoveProperty, value); }
         }
 
         public Board()
@@ -52,6 +45,11 @@ namespace LatrunculiGUI.Components.Board
 
         private void handleBoxMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (Game.Latrunculi.IsCalculatingHelp)
+            {
+                return;
+            }
+
             var box = sender as Box.Box;
             if (box == null)
             {
@@ -64,8 +62,8 @@ namespace LatrunculiGUI.Components.Board
                 return;
             }
 
-            var targetState = App.Desk.GetState(box.Position);
-            if (targetState == App.HistoryManager.ActualPlayer)
+            var targetState = Game.Latrunculi.Desk.GetState(box.Position);
+            if (targetState == Game.Latrunculi.HistoryManager.ActualPlayer)
             {
                 ActivePosition = box.Position;
                 return;
@@ -75,8 +73,7 @@ namespace LatrunculiGUI.Components.Board
             {
                 try
                 {
-                    App.Rules.Move(App.HistoryManager.ActualPlayer, new Move(ActivePosition, box.Position));
-                    HelpMove = null;
+                    Game.Latrunculi.Rules.Move(Game.Latrunculi.HistoryManager.ActualPlayer, new Move(ActivePosition, box.Position));
                 }
                 catch (Exception exception)
                 {
@@ -90,20 +87,6 @@ namespace LatrunculiGUI.Components.Board
         private void notifyPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private void handleLoaded(object sender, RoutedEventArgs e)
-        {
-            var window = Window.GetWindow(this);
-            window.KeyDown += handleKeyPress;
-        }
-
-        private void handleKeyPress(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.H)
-            {
-                HelpMove = new MiniMaxPlayer(3, App).Turn(App.HistoryManager.ActualPlayer);
-            }
         }
     }
 }

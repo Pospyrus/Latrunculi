@@ -22,7 +22,7 @@ namespace LatrunculiCore.Players
         {
             this.app = app;
             this.depth = depth;
-            this.deskToString = new DeskToString(app.Desk, app.HistoryManager);
+            deskToString = new DeskToString(app.Desk, app.HistoryManager);
         }
 
         public Move Turn(ChessBoxState player)
