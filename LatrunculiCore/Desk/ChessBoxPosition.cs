@@ -17,7 +17,7 @@ namespace LatrunculiCore.Desk
     public class ChessBoxPosition : IEquatable<ChessBoxPosition>
     {
         [JsonInclude]
-        public readonly DeskSize DeskSize;
+        public DeskSize DeskSize { get; private set; }
         
         [JsonIgnore]
         public string HashCode => $"{Letter}{Number}";
@@ -25,10 +25,10 @@ namespace LatrunculiCore.Desk
         public override string ToString() => HashCode;
 
         [JsonInclude]
-        public readonly int X;
+        public int X { get; private set; }
 
         [JsonInclude]
-        public readonly int Y;
+        public int Y { get; private set; }
         
         [JsonIgnore]
         public int Number => Y + 1;

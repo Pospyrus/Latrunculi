@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Latrunculi", "Latrunculi\La
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LatrunculiCore", "LatrunculiCore\LatrunculiCore.csproj", "{4D1A2577-4AD5-48C8-926A-4E37D4678A0F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LatrunculiCoreTests", "LatrunculiCoreTests\LatrunculiCoreTests.csproj", "{030D5C5C-4A13-4BD3-8166-7E36B8005704}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LatrunculiCoreTests", "LatrunculiCoreTests\LatrunculiCoreTests.csproj", "{030D5C5C-4A13-4BD3-8166-7E36B8005704}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LatrunculiTests", "LatrunculiTests\LatrunculiTests.csproj", "{1620132D-6B22-4DE6-96F7-C131B16E4546}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LatrunculiTests", "LatrunculiTests\LatrunculiTests.csproj", "{1620132D-6B22-4DE6-96F7-C131B16E4546}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LatrunculiGUI", "LatrunculiGUI\LatrunculiGUI.csproj", "{DC74AC06-A778-46DD-AE4F-E5117FE1B8D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{1620132D-6B22-4DE6-96F7-C131B16E4546}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1620132D-6B22-4DE6-96F7-C131B16E4546}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1620132D-6B22-4DE6-96F7-C131B16E4546}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC74AC06-A778-46DD-AE4F-E5117FE1B8D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC74AC06-A778-46DD-AE4F-E5117FE1B8D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC74AC06-A778-46DD-AE4F-E5117FE1B8D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC74AC06-A778-46DD-AE4F-E5117FE1B8D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

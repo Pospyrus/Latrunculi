@@ -13,8 +13,8 @@ namespace LatrunculiCore
 {
     public class LatrunculiApp
     {
-        public readonly DeskManager Desk;
-        public readonly AllPositions AllPositions;
+        public DeskManager Desk { get; private set; }
+        public AllPositions AllPositions { get; private set; }
         public readonly DeskHistoryManager HistoryManager;
         public readonly RulesManager Rules;
         public readonly SaveGameManager SaveGameManager;
