@@ -7,10 +7,10 @@ namespace LatrunculiCore.Desk
     public class ChangeSet
     {
         [JsonInclude]
-        public readonly List<ChessBoxChange> Changes;
+        public List<ChessBoxChange> Changes { get; private set; }
 
         [JsonInclude]
-        public readonly Move Move;
+        public Move Move { get; private set; }
 
         [JsonIgnore]
         public int CapturedCount => Changes.Count(change => change.IsCaptured);

@@ -6,7 +6,7 @@ namespace LatrunculiCore.Desk
 {
     public class AllPositions: IEnumerable<ChessBoxPosition>
     {
-        public readonly ChessBoxPosition[] Positions;
+        public ChessBoxPosition[] Positions { get; private set; }
 
         public AllPositions(DeskSize size)
         {

@@ -10,8 +10,7 @@ namespace LatrunculiCore.Logger
         private static string logFolder;
 
         private StreamWriter stream;
-
-        public readonly string name;
+        private readonly string name;
 
         public static void init(string appDataFolder) {
             logFolder = $@"{appDataFolder}\Logs\Latrunculi {DateTime.Now.ToString("dd. MM. yyyy HH.mm.ss")}";

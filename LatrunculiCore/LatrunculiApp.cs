@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text.Json;
 using LatrunculiCore.Desk;
@@ -15,9 +16,9 @@ namespace LatrunculiCore
     {
         public DeskManager Desk { get; private set; }
         public AllPositions AllPositions { get; private set; }
-        public readonly DeskHistoryManager HistoryManager;
-        public readonly RulesManager Rules;
-        public readonly SaveGameManager SaveGameManager;
+        public DeskHistoryManager HistoryManager { get; private set; }
+        public RulesManager Rules { get; private set; }
+        public SaveGameManager SaveGameManager { get; private set; }
 
         public bool BestMovesDebug = true;
         public bool Debug = false;
@@ -43,7 +44,7 @@ namespace LatrunculiCore
             }
         }
 
-        public readonly string AppDataFolder;
+        public string AppDataFolder { get; private set; }
 
         public LatrunculiApp()
         {

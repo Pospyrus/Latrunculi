@@ -6,10 +6,10 @@ namespace LatrunculiCore.Desk
     public class DeskSize
     {
         [JsonInclude]
-        public readonly int Width;
+        public int Width { get; private set; }
 
         [JsonInclude]
-        public readonly int Height;
+        public int Height { get; private set; }
 
         [JsonIgnore]
         public int Count => Width * Height;

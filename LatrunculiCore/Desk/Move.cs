@@ -7,17 +7,22 @@ namespace LatrunculiCore.Desk
     public class Move : IEquatable<Move>
     {
         [JsonInclude]
-        public readonly ChessBoxPosition From;
+        public ChessBoxPosition From { get; private set; }
         
         [JsonInclude]
-        public readonly ChessBoxPosition To;
+        public ChessBoxPosition To { get; private set; }
 
         [JsonIgnore]
         public string HashCode => $"{From.Letter}{From.Number} {To.Letter}{To.Number}";
 
         public override string ToString() => HashCode;
 
-        public bool Equals([AllowNull] Move other) => HashCode == other?.HashCode;
+        public bool Equals([AllowNull] Move other) => this == other;
+        public static bool operator ==(Move a, Move b)
+            => a?.HashCode == b?.HashCode;
+
+        public static bool operator !=(Move a, Move b)
+            => a?.HashCode != b?.HashCode;
 
         [JsonConstructor]
         public Move(ChessBoxPosition from, ChessBoxPosition to)

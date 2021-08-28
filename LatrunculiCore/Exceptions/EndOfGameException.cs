@@ -5,7 +5,7 @@ namespace LatrunculiCore.Exceptions
 {
     public class EndOfGameException : Exception
     {
-        public readonly ChessBoxState Winner;
+        public ChessBoxState Winner { get; private set; }
 
         public EndOfGameException(string message, ChessBoxState winner)
             : base(message)

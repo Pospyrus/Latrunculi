@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Serialization;
 
@@ -59,7 +60,12 @@ namespace LatrunculiCore.Desk
             Y = y;
         }
 
-        public bool Equals(ChessBoxPosition position) => position?.Index == Index;
+        public bool Equals([AllowNull] ChessBoxPosition position) => position == this;
+        public static bool operator ==(ChessBoxPosition a, ChessBoxPosition b)
+            => a?.Index == b?.Index;
+
+        public static bool operator !=(ChessBoxPosition a, ChessBoxPosition b)
+            => a?.Index != b?.Index;
 
         public static bool IsValidPosition(DeskSize deskSize, int x, int y)
         {

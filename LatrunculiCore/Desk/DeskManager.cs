@@ -1,15 +1,19 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace LatrunculiCore.Desk
 {
-    public class DeskManager
+    public class DeskManager: INotifyPropertyChanged
     {
-        public readonly DeskSize Size;
+        public DeskSize Size { get; private set; }
 
-        public readonly ChessBoxState[,] PlayingDesk;
+        public ChessBoxState[,] PlayingDesk { get; private set; }
+
+        public DeskManager Bind => this;
 
         public event EventHandler<ChangeSet> StepDone;
         public event EventHandler<ChangeSet> StepReverted;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public DeskManager(DeskSize size)
         {
@@ -29,6 +33,7 @@ namespace LatrunculiCore.Desk
                 PlayingDesk[change.Position.X, change.Position.Y] = change.NewState;
             }
             StepDone?.Invoke(this, step);
+            notifyPropertyChanged(nameof(Bind));
         }
 
         public void RevertStep(ChangeSet step)
@@ -38,6 +43,12 @@ namespace LatrunculiCore.Desk
                 PlayingDesk[change.Position.X, change.Position.Y] = change.OldState;
             }
             StepReverted?.Invoke(this, step);
+            notifyPropertyChanged(nameof(Bind));
+        }
+
+        protected void notifyPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
