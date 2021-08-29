@@ -3,19 +3,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LatrunculiGUI" xmlns:board="clr-namespace:LatrunculiGUI.Components.Board"
+        xmlns:local="clr-namespace:LatrunculiGUI"
+        xmlns:utils="clr-namespace:LatrunculiGUI.Utilities"
+        xmlns:board="clr-namespace:LatrunculiGUI.Components.Board"
+        xmlns:history="clr-namespace:LatrunculiGUI.Components.History"
         mc:Ignorable="d"
         KeyDown="handleKeyDown"
         Title="Latrunculi" Height="450" Width="800">
+    <Window.Resources>
+        <utils:BoardWidthConverter x:Key="boardWidthConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="sidebar" Width="Auto" />
-            <ColumnDefinition x:Name="board" />
+            <ColumnDefinition x:Name="sidebar" Width="*" />
+            <ColumnDefinition x:Name="board" Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="header" Height="Auto" />
+            <RowDefinition x:Name="header" Height="auto" />
             <RowDefinition x:Name="content" />
         </Grid.RowDefinitions>
-        <board:Board Grid.Row="2" Grid.Column="2" Game="{Binding}" />
+        <history:History Grid.Row="1" Grid.Column="0" Game="{Binding}" />
+        <board:Board Grid.Row="1" Grid.Column="1" Game="{Binding}">
+            <board:Board.Width>
+                <MultiBinding Converter="{StaticResource boardWidthConverter}">
+                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}" />
+                    <Binding Path="Latrunculi.Desk.Size" />
+                </MultiBinding>
+            </board:Board.Width>
+        </board:Board>
     </Grid>
 </Window>

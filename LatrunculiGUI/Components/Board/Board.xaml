@@ -17,6 +17,10 @@
         <utils:DeskSizeConverter x:Key="deskSizeConverter" />
         <utils:BoxStateConverter x:Key="boxStateConverter" />
         <utils:BoxGuiStateConverter x:Key="boxGuiStateConverter" />
+        <utils:NumbersConverter x:Key="numbersConverter" />
+        <utils:LetterConverter x:Key="letterConverter" />
+        <utils:LetterFontSizeConverter x:Key="letterFontSizeConverter" />
+        <utils:IncrementConverter x:Key="incrementConverter" />
         <utils:BindingProperty x:Key="boxSize">
             <utils:BindingProperty.Value>
                 <MultiBinding Converter="{StaticResource boxSizeConverter}">
@@ -34,57 +38,99 @@
                 </MultiBinding>
             </utils:BindingProperty.Value>
         </utils:BindingProperty>
+        <utils:BindingProperty x:Key="letterSize" Value="{Binding Value, Source={StaticResource boxSize}, Converter={StaticResource letterFontSizeConverter}}" />
     </Control.Resources>
-    <ItemsControl x:Name="boxes" ItemsSource="{Binding Latrunculi.AllPositions}" Background="Gray" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <ItemsControl x:Name="numbers" Grid.Column="2" ItemsSource="{Binding Latrunculi.Desk.Size.Height, Converter={StaticResource numbersConverter}}" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Height="{Binding Value, Source={StaticResource boxSize}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="{Binding Converter={StaticResource incrementConverter}}" Grid.Row="1" Margin="6,0,4,0" TextAlignment="Center" FontWeight="Medium" FontSize="{Binding Value, Source={StaticResource letterSize}}" Foreground="#333" />
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <ItemsControl x:Name="letters" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding Latrunculi.Desk.Size.Width, Converter={StaticResource numbersConverter}}" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width="{Binding Value, Source={StaticResource boxSize}}">
+                        <TextBlock Text="{Binding Converter={StaticResource letterConverter}}" Grid.Row="1" Margin="4,0,4,0" TextAlignment="Center" FontWeight="Medium" FontSize="{Binding Value, Source={StaticResource letterSize}}" Foreground="#333" />
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Grid x:Name="boardGrid" Grid.Column="1">
+            <ItemsControl x:Name="boxes" ItemsSource="{Binding Latrunculi.AllPositions}" Background="Gray" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                   Width="{Binding Value.Width, Source={StaticResource deskSize}}"
                   Height="{Binding Value.Height, Source={StaticResource deskSize}}">
-        <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-                <Canvas />
-            </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.ItemContainerStyle>
-            <Style TargetType="ContentPresenter">
-                <Setter Property="Canvas.Left">
-                    <Setter.Value>
-                        <MultiBinding Converter="{StaticResource positionConverter}">
-                            <Binding Path="X" />
-                            <Binding Path="Value" Source="{StaticResource boxSize}" />
-                        </MultiBinding>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="Canvas.Top">
-                    <Setter.Value>
-                        <MultiBinding Converter="{StaticResource positionConverter}">
-                            <Binding Path="Y" />
-                            <Binding Path="Value" Source="{StaticResource boxSize}" />
-                        </MultiBinding>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </ItemsControl.ItemContainerStyle>
-        <ItemsControl.ItemTemplate>
-            <DataTemplate>
-                <box:Box
-                    MouseDown="handleBoxMouseDown"
-                    Width="{Binding Value, Source={StaticResource boxSize}}"
-                    Height="{Binding Value, Source={StaticResource boxSize}}"
-                    Position="{Binding}">
-                    <box:Box.ChessState>
-                        <MultiBinding Converter="{StaticResource boxStateConverter}">
-                            <Binding Path="Game.Latrunculi.Desk" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
-                            <Binding />
-                        </MultiBinding>
-                    </box:Box.ChessState>
-                    <box:Box.GuiState>
-                        <MultiBinding Converter="{StaticResource boxGuiStateConverter}">
-                            <Binding />
-                            <Binding Path="ActivePosition" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
-                            <Binding Path="Game.HelpMove" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
-                        </MultiBinding>
-                    </box:Box.GuiState>
-                </box:Box>
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
-    </ItemsControl>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left">
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource positionConverter}">
+                                    <Binding Path="X" />
+                                    <Binding Path="Value" Source="{StaticResource boxSize}" />
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Canvas.Top">
+                            <Setter.Value>
+                                <MultiBinding Converter="{StaticResource positionConverter}">
+                                    <Binding Path="Y" />
+                                    <Binding Path="Value" Source="{StaticResource boxSize}" />
+                                </MultiBinding>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <box:Box
+                            MouseDown="handleBoxMouseDown"
+                            Width="{Binding Value, Source={StaticResource boxSize}}"
+                            Height="{Binding Value, Source={StaticResource boxSize}}"
+                            Position="{Binding}">
+                            <box:Box.ChessState>
+                                <MultiBinding Converter="{StaticResource boxStateConverter}">
+                                    <Binding Path="Game.Latrunculi.Desk" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
+                                    <Binding />
+                                </MultiBinding>
+                            </box:Box.ChessState>
+                            <box:Box.GuiState>
+                                <MultiBinding Converter="{StaticResource boxGuiStateConverter}">
+                                    <Binding />
+                                    <Binding Path="ActivePosition" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
+                                    <Binding Path="Game.HelpMove" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
+                                </MultiBinding>
+                            </box:Box.GuiState>
+                        </box:Box>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </Grid>
 </UserControl>

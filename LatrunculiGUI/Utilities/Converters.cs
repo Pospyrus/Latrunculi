@@ -6,6 +6,8 @@ using System.Collections;
 using System.Windows.Data;
 using System.Windows.Media;
 using LatrunculiGUI.Components.Box;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace LatrunculiGUI.Utilities
 {
@@ -88,8 +90,8 @@ namespace LatrunculiGUI.Utilities
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            var boardWidth = values.GetValueByIndex<int>(0);
-            var boardHeight = values.GetValueByIndex<int>(1);
+            var boardWidth = values.GetValueByIndex<double>(0);
+            var boardHeight = values.GetValueByIndex<double>(1);
             var deskSize = values.GetValueByIndex<DeskSize>(2);
 
             if (deskSize == null)
@@ -97,8 +99,8 @@ namespace LatrunculiGUI.Utilities
                 return 0.0;
             }
 
-            var boxWidthMax = (double)boardWidth / deskSize.Width;
-            var boxHeightMax = (double)boardHeight / deskSize.Height;
+            var boxWidthMax = boardWidth / (deskSize.Width + 0.5);
+            var boxHeightMax = boardHeight / (deskSize.Height + 0.5);
             return Math.Ceiling(Math.Min(boxWidthMax, boxHeightMax));
 
         }
@@ -155,12 +157,7 @@ namespace LatrunculiGUI.Utilities
 
     public class BindingProperty : DependencyObject
     {
-        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), typeof(object), typeof(BindingProperty), new FrameworkPropertyMetadata(15.10, hendleChanged));
-
-        private static void hendleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            Console.WriteLine(e.NewValue);
-        }
+        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), typeof(object), typeof(BindingProperty), new FrameworkPropertyMetadata(15.10));
 
         public object Value
         {
@@ -183,6 +180,96 @@ namespace LatrunculiGUI.Utilities
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class NumbersConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var count = value as int?;
+            return Enumerable.Range(0, count.GetValueOrDefault());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class LetterConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var number = value as int?;
+            return (char)('A' + number.GetValueOrDefault());
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class LetterFontSizeConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var boxSize = (value as double?).GetValueOrDefault();
+            return Math.Max(1.0, boxSize / 4.0);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class BoardWidthConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var actualHeight = values.GetValueByIndex<double>(0);
+            var deskSize = values.GetValueByIndex<DeskSize>(1);
+            if (deskSize == null)
+            {
+                return actualHeight;
+            }
+            var ratio = (deskSize.Width + 0.5) / (deskSize.Height + 0.5);
+            return actualHeight * ratio;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class EnumeratorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var enumerable = value as IEnumerable<object>;
+            return enumerable.Select((item, index) => new { Index = index, Value = item });
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class IncrementConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var number = value as int?;
+            return number.GetValueOrDefault() + 1;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
