@@ -12,12 +12,14 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Control.Resources>
         <utils:BoxFillColorConverter x:Key="fillConverter" />
-        <utils:BoxPositionConverter x:Key="positionConverter" />
+        <utils:BoxPositionHorizontalConverter x:Key="positionHorizontalConverter" />
+        <utils:BoxPositionVerticalConverter x:Key="positionVerticalConverter" />
         <utils:BoxSizeConverter x:Key="boxSizeConverter" />
         <utils:DeskSizeConverter x:Key="deskSizeConverter" />
         <utils:BoxStateConverter x:Key="boxStateConverter" />
         <utils:BoxGuiStateConverter x:Key="boxGuiStateConverter" />
         <utils:NumbersConverter x:Key="numbersConverter" />
+        <utils:NumbersRevertedConverter x:Key="numbersRevertedConverter" />
         <utils:LetterConverter x:Key="letterConverter" />
         <utils:LetterFontSizeConverter x:Key="letterFontSizeConverter" />
         <utils:IncrementConverter x:Key="incrementConverter" />
@@ -50,7 +52,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <ItemsControl x:Name="numbers" Grid.Column="2" ItemsSource="{Binding Latrunculi.Desk.Size.Height, Converter={StaticResource numbersConverter}}" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <ItemsControl x:Name="numbers" Grid.Column="2" ItemsSource="{Binding Latrunculi.Desk.Size.Height, Converter={StaticResource numbersRevertedConverter}}" HorizontalAlignment="Center" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid Height="{Binding Value, Source={StaticResource boxSize}}">
@@ -91,7 +93,7 @@
                     <Style TargetType="ContentPresenter">
                         <Setter Property="Canvas.Left">
                             <Setter.Value>
-                                <MultiBinding Converter="{StaticResource positionConverter}">
+                                <MultiBinding Converter="{StaticResource positionHorizontalConverter}">
                                     <Binding Path="X" />
                                     <Binding Path="Value" Source="{StaticResource boxSize}" />
                                 </MultiBinding>
@@ -99,9 +101,10 @@
                         </Setter>
                         <Setter Property="Canvas.Top">
                             <Setter.Value>
-                                <MultiBinding Converter="{StaticResource positionConverter}">
+                                <MultiBinding Converter="{StaticResource positionVerticalConverter}">
                                     <Binding Path="Y" />
                                     <Binding Path="Value" Source="{StaticResource boxSize}" />
+                                    <Binding Path="Game.Latrunculi.Desk.Size" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=local:Board}" />
                                 </MultiBinding>
                             </Setter.Value>
                         </Setter>

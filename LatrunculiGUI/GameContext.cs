@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -13,7 +14,7 @@ namespace LatrunculiGUI
 {
     public class GameContext : DependencyObject, INotifyPropertyChanged
     {
-        private Task<Move> helpTask;
+        private CancellationTokenSource helpCts = null;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -39,26 +40,32 @@ namespace LatrunculiGUI
             {
                 if (e.PropertyName == nameof(latrunculi.Desk))
                 {
-                    Dispatcher.Invoke(() => HelpMove = null);
+                    helpCts?.Cancel();
+                    HelpMove = null;
                 }
             };
         }
 
         public void GetHelp()
         {
-            var latrunculi = Latrunculi;
-            latrunculi.IsCalculatingHelp = true;
-            var task = helpTask = Task.Run(() => new MiniMaxPlayer(3, latrunculi).Turn(latrunculi.HistoryManager.ActualPlayer));
-            task.ContinueWith(move =>
+            helpCts?.Cancel();
+            var cts = helpCts = new CancellationTokenSource();
+            var latrunculi = Latrunculi.CreateClone();
+            var task = Task.Run(() =>
             {
-                Dispatcher.Invoke(() =>
+                try
                 {
-                    if (helpTask == task)
+                    var move = new MiniMaxPlayer(3, latrunculi).Turn(latrunculi.HistoryManager.ActualPlayer, cts.Token);
+                    cts.Token.ThrowIfCancellationRequested();
+                    Dispatcher.Invoke(() =>
                     {
-                        HelpMove = move.Result;
-                        latrunculi.IsCalculatingHelp = false;
-                    }
-                });
+                        HelpMove = move;
+                    });
+                }
+                catch
+                {
+                    Console.WriteLine("Výpočet nejlepšího tahu byl zrušen.");
+                }
             });
         }
 

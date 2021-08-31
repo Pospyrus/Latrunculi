@@ -12,10 +12,23 @@ namespace LatrunculiCore.Desk
         public event EventHandler<ChangeSet> GoingBack;
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public int HistoryIndex { get; private set; } = -1;
+        private int historyIndex = -1;
+
+        public int HistoryIndex { 
+            get => historyIndex; 
+            private set {
+                if (value != historyIndex)
+                {
+                    historyIndex = value;
+                    notifyPropertyChanged(nameof(HistoryIndex));
+                }
+            }
+        }
+
         public int ActualRound => HistoryIndex + 2;
         public ObservableCollection<ChangeSet> Steps { get; private set; } = new ObservableCollection<ChangeSet>();
         public ChangeSet LastStep => HistoryIndex >= 0 ? Steps[HistoryIndex] : null;
+        public ChessBoxState StartingPlayer => ChessBoxState.White;
         public ChessBoxState ActualPlayer => HistoryIndex % 2 == 0 ? ChessBoxState.Black : ChessBoxState.White;
         public ChessBoxState EnemyPlayer => ActualPlayer == ChessBoxState.White ? ChessBoxState.Black : ChessBoxState.White;
 
@@ -52,7 +65,7 @@ namespace LatrunculiCore.Desk
                 goHistoryBackTo(newIndex);
         }
 
-        public void LoadHistory(List<ChangeSet> steps)
+        public void LoadHistory(IEnumerable<ChangeSet> steps)
         {
             GoTo(-1);
             Steps = new ObservableCollection<ChangeSet>(steps);

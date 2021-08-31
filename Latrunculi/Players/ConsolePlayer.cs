@@ -2,6 +2,7 @@
 using LatrunculiCore.Desk;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace LatrunculiCore.Players
 {
@@ -20,7 +21,7 @@ namespace LatrunculiCore.Players
             this.commandManager = commandManager;
         }
 
-        public Move Turn(ChessBoxState player)
+        public Move Turn(ChessBoxState player, CancellationToken ct = default)
         {
             Console.Write("Váš tah (start cíl): ");
             string line = Console.ReadLine().Trim().ToLower();

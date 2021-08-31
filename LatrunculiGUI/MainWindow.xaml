@@ -15,7 +15,7 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="sidebar" Width="*" />
+            <ColumnDefinition x:Name="sidebar" Width="*" MinWidth="320" />
             <ColumnDefinition x:Name="board" Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>

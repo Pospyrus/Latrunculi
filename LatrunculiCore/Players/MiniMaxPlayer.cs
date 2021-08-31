@@ -4,6 +4,7 @@ using LatrunculiCore.Logger;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace LatrunculiCore.Players
 {
@@ -25,21 +26,21 @@ namespace LatrunculiCore.Players
             deskToString = new DeskToString(app.Desk, app.HistoryManager);
         }
 
-        public Move Turn(ChessBoxState player)
+        public Move Turn(ChessBoxState player, CancellationToken ct = default)
         {
-            return getBestMove(player);
+            return getBestMove(player, ct);
         }
 
-        private Move getBestMove(ChessBoxState player)
+        private Move getBestMove(ChessBoxState player, CancellationToken ct = default)
         {
-
+            ct.ThrowIfCancellationRequested();
             logger?.Dispose();
             deskLogger?.Dispose();
             logger = new FileLogger($"{app.HistoryManager.ActualRound} - {player} - minimax {depth}");
             deskLogger = new FileLogger($"{app.HistoryManager.ActualRound} - {player} - minimax {depth} - desk");
 
             var validMoves = app.Rules.GetAllValidMoves(player).ToArray();
-            IEnumerable<(Move move, int evaluation, int bestMovesCount)> moves = validMoves.Select(move => (minMaxRecursive(depth, move))).ToArray();
+            IEnumerable<(Move move, int evaluation, int bestMovesCount)> moves = validMoves.Select(move => (minMaxRecursive(depth, move, ct))).ToArray();
             if (app.Debug)
             {
                 logger.WriteLine("############################# Result");
@@ -75,45 +76,52 @@ namespace LatrunculiCore.Players
             return bestForwardMoves.Skip(random.Next(bestForwardMoves.Count()) - 1).First();
         }
 
-        private (Move move, int evaluation, int bestMovesCount) minMaxRecursive(int depth, Move move)
+        private (Move move, int evaluation, int bestMovesCount) minMaxRecursive(int depth, Move move, CancellationToken ct = default)
         {
-            app.Rules.Move(app.HistoryManager.ActualPlayer, move);
-            var indentation = this.depth - depth;
-            var moves = string.Join(';', app.HistoryManager.Steps.TakeLast(this.depth - depth + 1)
-                            .Select(step => step.Move.ToString()));
-            if (app.Debug)
+            ct.ThrowIfCancellationRequested();
+            try
             {
-                deskLogger.WriteLine($"{app.HistoryManager.ActualPlayer} {moves}");
-                deskLogger.WriteLine(deskToString.GetDeskAsString());
-            }
-            (Move move, int evaluation, int bestMovesCount)? evaluation = null;
-            if (depth == 0 || app.IsEnded)
-            {
-                evaluation = (move, evaluationPlayer(), 1);
-                if (app.Debug && evaluation.Value.evaluation != 0)
+                app.Rules.Move(app.HistoryManager.ActualPlayer, move);
+                var indentation = this.depth - depth;
+                var moves = string.Join(';', app.HistoryManager.Steps.TakeLast(this.depth - depth + 1)
+                                .Select(step => step.Move.ToString()));
+                if (app.Debug)
                 {
-                    logger.WriteLine($"{app.HistoryManager.ActualPlayer} {moves} ({evaluation})", indentation);
+                    deskLogger.WriteLine($"{app.HistoryManager.ActualPlayer} {moves}");
+                    deskLogger.WriteLine(deskToString.GetDeskAsString());
                 }
-            }
-            else
-            {
-                //logger.WriteLine($"Start {app.HistoryManager.ActualPlayer} {moves}", indentation);
-                var evaluations = app.Rules.GetAllValidMoves(app.HistoryManager.ActualPlayer)
-                    .ToArray()
-                    .Select<Move, (Move move, int evaluation, int bestMovesCount)>(nextMove => minMaxRecursive(depth - 1, nextMove))
-                    .ToArray();
-                var maxEvaluation = evaluations.Max(move => move.evaluation);
-                var maxCount = evaluations
-                    .Where(eval => eval.evaluation == maxEvaluation)
-                    .Sum(eval => eval.bestMovesCount);
-                if (app.Debug && maxEvaluation != 0)
+                (Move move, int evaluation, int bestMovesCount)? evaluation = null;
+                if (depth == 0 || app.IsEnded)
                 {
-                    logger.WriteLine($"End {app.HistoryManager.ActualPlayer} {moves} ({maxEvaluation}, count: {maxCount})", indentation);
+                    evaluation = (move, evaluationPlayer(), 1);
+                    if (app.Debug && evaluation.Value.evaluation != 0)
+                    {
+                        logger.WriteLine($"{app.HistoryManager.ActualPlayer} {moves} ({evaluation})", indentation);
+                    }
                 }
-                evaluation = (move, maxEvaluation, maxCount);
+                else
+                {
+                    //logger.WriteLine($"Start {app.HistoryManager.ActualPlayer} {moves}", indentation);
+                    var evaluations = app.Rules.GetAllValidMoves(app.HistoryManager.ActualPlayer)
+                        .ToArray()
+                        .Select(nextMove => minMaxRecursive(depth - 1, nextMove, ct))
+                        .ToArray();
+                    var maxEvaluation = evaluations.Max(move => move.evaluation);
+                    var maxCount = evaluations
+                        .Where(eval => eval.evaluation == maxEvaluation)
+                        .Sum(eval => eval.bestMovesCount);
+                    if (app.Debug && maxEvaluation != 0)
+                    {
+                        logger.WriteLine($"End {app.HistoryManager.ActualPlayer} {moves} ({maxEvaluation}, count: {maxCount})", indentation);
+                    }
+                    evaluation = (move, maxEvaluation, maxCount);
+                }
+                return evaluation.Value;
             }
-            app.HistoryManager.Back();
-            return evaluation.Value;
+            finally
+            {
+                app.HistoryManager.Back();
+            }
         }
 
         private int evaluationPlayer()

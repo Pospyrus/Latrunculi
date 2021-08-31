@@ -22,7 +22,6 @@ namespace LatrunculiCore
 
         public bool BestMovesDebug = true;
         public bool Debug = false;
-        public bool IsCalculatingHelp { get; set; }
 
         public IPlayer WhitePlayer;
         public IPlayer BlackPlayer;
@@ -57,10 +56,7 @@ namespace LatrunculiCore
             Desk = new DeskManager(deskSize);
             Desk.DeskChanged += (__, _) =>
             {
-                if (!IsCalculatingHelp)
-                {
-                    notifyPropertyChanged(nameof(Desk));
-                }
+                notifyPropertyChanged(nameof(Desk));
             };
             HistoryManager = new DeskHistoryManager();
             HistoryManager.GoingPrev += (_, changes) => Desk.DoStep(changes);
@@ -94,6 +90,13 @@ namespace LatrunculiCore
         protected void notifyPropertyChanged(string attrName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(attrName));
+        }
+
+        public LatrunculiApp CreateClone()
+        {
+            var clone = new LatrunculiApp();
+            clone.HistoryManager.LoadHistory(HistoryManager.Steps);
+            return clone;
         }
     }
 }

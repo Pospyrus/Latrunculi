@@ -7,36 +7,119 @@
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:LatrunculiGUI.Components.History"
              mc:Ignorable="d" 
+             x:Name="control"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <Style TargetType="Grid" x:Key="OddRow">
+            <Setter Property="Background" Value="SaddleBrown" />
+        </Style>
+        <Style TargetType="Grid" x:Key="OddRowActive">
+            <Setter Property="Background" Value="#111" />
+        </Style>
+        <Style TargetType="Grid" x:Key="EvenRow">
+            <Setter Property="Background" Value="Gray" />
+        </Style>
+        <Style TargetType="Grid" x:Key="EvenRowActive">
+            <Setter Property="Background" Value="#111" />
+        </Style>
+
+        <Style TargetType="TextBlock" x:Key="MoveLabel">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="18" />
+        </Style>
+        <Style TargetType="TextBlock" x:Key="MoveLabelBold" BasedOn="{StaticResource MoveLabel}">
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
         <utils:EnumeratorConverter x:Key="enumeratorConverter" />
         <utils:IncrementConverter x:Key="incrementConverter" />
+        <utils:MovePlayerConverter x:Key="movePlayerConverter" />
+        <utils:HistoryRowStyleConverter x:Key="historyRowStyleConverter"
+            OddStyle="{StaticResource OddRow}" OddActiveStyle="{StaticResource OddRowActive}"
+            EvenStyle="{StaticResource EvenRow}" EvenActiveStyle="{StaticResource EvenRowActive}" />
     </UserControl.Resources>
-    <Grid>
-        <ItemsControl ItemsSource="{Binding Latrunculi.HistoryManager.Steps, Converter={StaticResource enumeratorConverter}}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Column="0"
-                                   Text="{Binding Path=Index, Converter={StaticResource incrementConverter}, StringFormat={}#{0}}" />
-                        <TextBlock Grid.Column="1" Text="{Binding Value.Move.HashCode}" />
-                    </Grid>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+    <Grid Margin="16,0,0,8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Historie tahů" FontSize="40" />
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" x:Name="historyScroll">
+            <StackPanel Orientation="Vertical">
+                <Grid MouseDown="handleHistoryStartItemMouseDown">
+                    <Grid.Style>
+                        <MultiBinding Converter="{StaticResource historyRowStyleConverter}">
+                            <Binding>
+                                <Binding.Source>
+                                    <sys:Int32>-1</sys:Int32>
+                                </Binding.Source>
+                            </Binding>
+                            <Binding Path="Game.Latrunculi.HistoryManager.HistoryIndex" ElementName="control" />
+                        </MultiBinding>
+                    </Grid.Style>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="16" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="8" />
+                        <RowDefinition />
+                        <RowDefinition Height="4" />
+                        <RowDefinition />
+                        <RowDefinition Height="8" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource MoveLabelBold}">Začátek hry</TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Style="{StaticResource MoveLabel}" TextAlignment="Right">A souboj může začít!</TextBlock>
+                </Grid>
+                <ItemsControl ItemsSource="{Binding Latrunculi.HistoryManager.Steps, Converter={StaticResource enumeratorConverter}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid MouseDown="handleHistoryItemMouseDown">
+                                <Grid.Style>
+                                    <MultiBinding Converter="{StaticResource historyRowStyleConverter}">
+                                        <Binding Path="Index" />
+                                        <Binding Path="Game.Latrunculi.HistoryManager.HistoryIndex" ElementName="control" />
+                                    </MultiBinding>
+                                </Grid.Style>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="16" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="8" />
+                                    <RowDefinition />
+                                    <RowDefinition Height="4" />
+                                    <RowDefinition />
+                                    <RowDefinition Height="8" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource MoveLabelBold}"
+                                           Text="{Binding Index, Converter={StaticResource incrementConverter}, StringFormat={}Tah {0}}" />
+                                <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource MoveLabelBold}" TextAlignment="Right"
+                                           Text="{Binding Value.Move.HashCode}" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource MoveLabel}"
+                                           Text="{Binding Value.CapturedCount, StringFormat={}Vyhozených {0}}" />
+                                <TextBlock Grid.Row="3" Grid.Column="2" Style="{StaticResource MoveLabel}" TextAlignment="Right">
+                                    <TextBlock.Text>
+                                        <MultiBinding Converter="{StaticResource movePlayerConverter}">
+                                            <Binding Path="Game.Latrunculi.HistoryManager.StartingPlayer" ElementName="control" />
+                                            <Binding Path="Index" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

@@ -45,11 +45,6 @@ namespace LatrunculiGUI.Components.Board
 
         private void handleBoxMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (Game.Latrunculi.IsCalculatingHelp)
-            {
-                return;
-            }
-
             var box = sender as Box.Box;
             if (box == null)
             {

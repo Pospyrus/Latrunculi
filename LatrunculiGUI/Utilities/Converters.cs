@@ -71,13 +71,29 @@ namespace LatrunculiGUI.Utilities
         }
     }
 
-    public class BoxPositionConverter : IMultiValueConverter
+    public class BoxPositionHorizontalConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             var position = values.GetValueByIndex<int>(0);
             var boxSize = values.GetValueByIndex<double>(1);
             return (double)(position * boxSize);
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class BoxPositionVerticalConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var position = values.GetValueByIndex<int>(0);
+            var boxSize = values.GetValueByIndex<double>(1);
+            var deskSize = values.GetValueByIndex<DeskSize>(2);
+            return (deskSize.Height - position - 1) * boxSize;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -199,6 +215,20 @@ namespace LatrunculiGUI.Utilities
         }
     }
 
+    public class NumbersRevertedConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var count = value as int?;
+            return Enumerable.Range(0, count.GetValueOrDefault()).Reverse();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class LetterConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -270,6 +300,122 @@ namespace LatrunculiGUI.Utilities
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class VisibleIfNotZeroConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var number = value as int?;
+            return number.GetValueOrDefault() > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class MovePlayerConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var startingPlayer = values.GetValueByIndex<ChessBoxState>(0);
+            var moveIndex = values.GetValueByIndex<int>(1);
+
+            var player = moveIndex % 2 == 0 ? startingPlayer :
+                startingPlayer == ChessBoxState.White ? ChessBoxState.Black : ChessBoxState.White;
+            return (player) switch
+            {
+                ChessBoxState.White => "Bílý",
+                ChessBoxState.Black => "Černý",
+                _ => ""
+            };
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class StrippedColorConverter : DependencyObject, IValueConverter
+    {
+        public static readonly DependencyProperty OddColorProperty = DependencyProperty.Register(nameof(OddColor), typeof(Brush), typeof(StrippedColorConverter), new FrameworkPropertyMetadata(Brushes.Transparent));
+        public static readonly DependencyProperty EvenColorProperty = DependencyProperty.Register(nameof(EvenColor), typeof(Brush), typeof(StrippedColorConverter), new FrameworkPropertyMetadata(Brushes.Transparent));
+
+        public object OddColor
+        {
+            get { return GetValue(OddColorProperty); }
+            set { SetValue(OddColorProperty, value); }
+        }
+
+        public object EvenColor
+        {
+            get { return GetValue(EvenColorProperty); }
+            set { SetValue(EvenColorProperty, value); }
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var index = value as int?;
+            return index.GetValueOrDefault() % 2 == 0 ? EvenColor : OddColor;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class HistoryRowStyleConverter : DependencyObject, IMultiValueConverter
+    {
+        public static readonly DependencyProperty OddStyleProperty = DependencyProperty.Register(nameof(OddStyle), typeof(Style), typeof(HistoryRowStyleConverter), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty OddActiveStyleProperty = DependencyProperty.Register(nameof(OddActiveStyle), typeof(Style), typeof(HistoryRowStyleConverter), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty EvenStyleProperty = DependencyProperty.Register(nameof(EvenStyle), typeof(Style), typeof(HistoryRowStyleConverter), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty EvenActiveStyleProperty = DependencyProperty.Register(nameof(EvenActiveStyle), typeof(Style), typeof(HistoryRowStyleConverter), new FrameworkPropertyMetadata(null));
+
+        public object OddStyle
+        {
+            get { return GetValue(OddStyleProperty); }
+            set { SetValue(OddStyleProperty, value); }
+        }
+
+        public object OddActiveStyle
+        {
+            get { return GetValue(OddActiveStyleProperty); }
+            set { SetValue(OddActiveStyleProperty, value); }
+        }
+
+        public object EvenStyle
+        {
+            get { return GetValue(EvenStyleProperty); }
+            set { SetValue(EvenStyleProperty, value); }
+        }
+
+        public object EvenActiveStyle
+        {
+            get { return GetValue(EvenActiveStyleProperty); }
+            set { SetValue(EvenActiveStyleProperty, value); }
+        }
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var actualIndex = values.GetValueByIndex<int>(0);
+            var activeIndex = values.GetValueByIndex<int>(1);
+
+            var isActive = activeIndex == actualIndex;
+            return (Math.Abs(actualIndex) % 2) switch
+            {
+                0 => isActive ? EvenActiveStyle : EvenStyle,
+                1 => isActive ? OddActiveStyle : OddStyle,
+                _ => null
+            };
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
