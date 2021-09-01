@@ -69,6 +69,7 @@ namespace LatrunculiGUI.Components.Board
                 try
                 {
                     Game.Latrunculi.Rules.Move(Game.Latrunculi.HistoryManager.ActualPlayer, new Move(ActivePosition, box.Position));
+                    Game.TryTurn();
                 }
                 catch (Exception exception)
                 {

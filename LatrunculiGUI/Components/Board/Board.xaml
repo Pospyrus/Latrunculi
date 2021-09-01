@@ -52,7 +52,7 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
-        <ItemsControl x:Name="numbers" Grid.Column="2" ItemsSource="{Binding Latrunculi.Desk.Size.Height, Converter={StaticResource numbersRevertedConverter}}" HorizontalAlignment="Center" VerticalAlignment="Top">
+        <ItemsControl x:Name="numbers" Grid.Column="2" ItemsSource="{Binding Latrunculi.Desk.Size.Height, Converter={StaticResource numbersRevertedConverter}}" HorizontalAlignment="Right" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Grid Height="{Binding Value, Source={StaticResource boxSize}}">

@@ -31,6 +31,7 @@ namespace LatrunculiCore.Desk
         public ChessBoxState StartingPlayer => ChessBoxState.White;
         public ChessBoxState ActualPlayer => HistoryIndex % 2 == 0 ? ChessBoxState.Black : ChessBoxState.White;
         public ChessBoxState EnemyPlayer => ActualPlayer == ChessBoxState.White ? ChessBoxState.Black : ChessBoxState.White;
+        public bool IsLastIndexSelected => Steps.Count == HistoryIndex + 1;
 
         public void Add(ChangeSet step)
         {
@@ -55,6 +56,13 @@ namespace LatrunculiCore.Desk
                 goHistoryForwardTo(HistoryIndex + 1);
         }
 
+        public void NewGame()
+        {
+            goHistoryBackTo(-1);
+            Steps.Clear();
+            notifyPropertyChanged(nameof(Steps));
+        }
+
         public void GoTo(int newIndex)
         {
             if (newIndex < -1 || newIndex > Steps.Count - 1)
@@ -70,6 +78,7 @@ namespace LatrunculiCore.Desk
             GoTo(-1);
             Steps = new ObservableCollection<ChangeSet>(steps);
             GoTo(Steps.Count + -1);
+            notifyPropertyChanged(nameof(Steps));
         }
 
         private void goHistoryBackTo(int newIndex)

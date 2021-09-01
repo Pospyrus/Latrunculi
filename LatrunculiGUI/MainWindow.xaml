@@ -15,15 +15,44 @@
     </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="sidebar" Width="*" MinWidth="320" />
+            <ColumnDefinition x:Name="sidebar" Width="5*" MinWidth="320"  MaxWidth="500" />
+            <ColumnDefinition />
             <ColumnDefinition x:Name="board" Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="header" Height="auto" />
             <RowDefinition x:Name="content" />
         </Grid.RowDefinitions>
-        <history:History Grid.Row="1" Grid.Column="0" Game="{Binding}" />
-        <board:Board Grid.Row="1" Grid.Column="1" Game="{Binding}">
+        <DockPanel Grid.Row="0" Grid.ColumnSpan="2">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_Hra">
+                    <MenuItem Header="_Nová hra" Click="handleNovaHra" />
+                    <MenuItem Header="N_ačíst hru" Click="handleNacistHru" />
+                    <MenuItem Header="U_ložit hru" Click="handleUlozitHru" />
+                    <Separator />
+                    <MenuItem Header="_Ukončit hru" Click="handleUkoncit" />
+                </MenuItem>
+                <MenuItem Header="H_ráči">
+                    <MenuItem Header="_Bílý hráč">
+                        <MenuItem Header="_Člověk" Click="handleBilyHracClovek"/>
+                        <MenuItem Header="_Začátečník" Click="handleBilyHracZacatecnik" />
+                        <MenuItem Header="_Pokročilý" Click="handleBilyHracPokrocily" />
+                        <MenuItem Header="_Expert" Click="handleBilyHracExpert" />
+                    </MenuItem>
+                    <MenuItem Header="_Černý hráč">
+                        <MenuItem Header="_Člověk" Click="handleCernyHracClovek" />
+                        <MenuItem Header="_Začátečník" Click="handleCernyHracZacatecnik" />
+                        <MenuItem Header="_Pokročilý" Click="handleCernyHracPokrocily" />
+                        <MenuItem Header="_Expert" Click="handleCernyHracExpert" />
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="_Nápověda">
+                    <MenuItem Header="_Zobrazit nápovědu" Click="handleZiskatNapovedu" />
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <history:History Grid.Row="1" Grid.Column="0" Margin="0,0,16,0" Game="{Binding}" />
+        <board:Board Grid.Row="1" Grid.Column="2" Game="{Binding}" HorizontalAlignment="Right">
             <board:Board.Width>
                 <MultiBinding Converter="{StaticResource boardWidthConverter}">
                     <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}" />

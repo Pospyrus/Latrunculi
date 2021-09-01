@@ -98,7 +98,7 @@ namespace Latrunculi
             if (saveMatch.Success)
             {
                 var name = saveMatch.Groups["name"].Value.Trim();
-                if (app.SaveGameManager.SaveToFile(name))
+                if (app.SaveGameManager.Save(name))
                 {
                     Program.WriteColoredLine($"Hra {name} byla uložena.", ConsoleColor.Green);
                 }
@@ -118,7 +118,7 @@ namespace Latrunculi
                     Console.ReadKey();
                     return true;
                 }
-                if (app.SaveGameManager.LoadFromFile(name))
+                if (app.SaveGameManager.Load(name))
                 {
                     Program.WriteColoredLine($"Hra {name} byla načtena.", ConsoleColor.Green);
                 }

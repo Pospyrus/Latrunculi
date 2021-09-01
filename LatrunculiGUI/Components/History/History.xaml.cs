@@ -28,7 +28,13 @@ namespace LatrunculiGUI.Components.History
         {
             var game = e.NewValue as GameContext;
             var history = d as History;
-            game.Latrunculi.Desk.StepDone += (__, _) => history.ScrollBottom();
+            game.Latrunculi.Desk.StepDone += (__, _) =>
+            {
+                if (game.Latrunculi.HistoryManager.IsLastIndexSelected)
+                {
+                    history.ScrollBottom();
+                }
+            };
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
