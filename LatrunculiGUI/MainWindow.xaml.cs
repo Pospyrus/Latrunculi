@@ -54,6 +54,7 @@ namespace LatrunculiGUI
 
         private void handleOHre(object sender, RoutedEventArgs e)
         {
+            Game.ShowAboutWindow();
         }
 
         private void handleBilyHracClovek(object sender, RoutedEventArgs e)

@@ -8,20 +8,22 @@
         xmlns:board="clr-namespace:LatrunculiGUI.Components.Board"
         xmlns:history="clr-namespace:LatrunculiGUI.Components.History"
         mc:Ignorable="d"
+        x:Name="mainWindow"
         KeyDown="handleKeyDown"
-        Title="Latrunculi" Height="450" Width="800">
+        MinWidth="670" MinHeight="400"
+        Title="Latrunculi" Height="800" Width="1200">
     <Window.Resources>
         <utils:BoardWidthConverter x:Key="boardWidthConverter" />
     </Window.Resources>
-    <Grid>
+    <Grid x:Name="mainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="sidebar" Width="5*" MinWidth="320"  MaxWidth="500" />
             <ColumnDefinition />
-            <ColumnDefinition x:Name="board" Width="auto" />
+            <ColumnDefinition x:Name="boardColumn" Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="header" Height="auto" />
-            <RowDefinition x:Name="content" />
+            <RowDefinition x:Name="contentRow" />
             <RowDefinition x:Name="status" Height="auto" />
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0" Grid.ColumnSpan="3">
@@ -49,22 +51,30 @@
                 </MenuItem>
                 <MenuItem Header="_Nápověda">
                     <MenuItem Header="_Zobrazit nápovědu nejlepšího tahu" Click="handleZiskatNapovedu" />
-                    <MenuItem Header="_O hře" Click="handleZiskatNapovedu" />
+                    <MenuItem Header="_O hře" Click="handleOHre" />
                 </MenuItem>
             </Menu>
         </DockPanel>
-        <history:History Grid.Row="1" Grid.Column="0" Margin="0,0,16,0" Game="{Binding}" />
-        <board:Board Grid.Row="1" Grid.Column="2" Game="{Binding}" HorizontalAlignment="Right">
-            <board:Board.Width>
-                <MultiBinding Converter="{StaticResource boardWidthConverter}">
-                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}" />
-                    <Binding Path="Latrunculi.Desk.Size" />
-                </MultiBinding>
-            </board:Board.Width>
-        </board:Board>
+        <history:History x:Name="history" Grid.Row="1" Grid.Column="0" Margin="0,0,16,0" Game="{Binding}" />
+        <Grid Grid.Row="1" Grid.Column="2" x:Name="boardGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <board:Board x:Name="board" Game="{Binding}" HorizontalAlignment="Right">
+                <board:Board.Width>
+                    <MultiBinding Converter="{StaticResource boardWidthConverter}">
+                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}" />
+                        <Binding Path="Latrunculi.Desk.Size" />
+                    </MultiBinding>
+                </board:Board.Width>
+            </board:Board>
+        </Grid>
         <StatusBar Grid.Row="2" Grid.ColumnSpan="3">
-            <StatusBarItem>
-                <TextBlock Text="{Binding Status}" />
+            <StatusBarItem Margin="8" HorizontalAlignment="Center">
+                <TextBlock Text="{Binding Status}" FontSize="22" />
             </StatusBarItem>
         </StatusBar>
     </Grid>

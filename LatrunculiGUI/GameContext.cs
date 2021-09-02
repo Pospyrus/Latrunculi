@@ -2,6 +2,7 @@
 using LatrunculiCore.Desk;
 using LatrunculiCore.Exceptions;
 using LatrunculiCore.Players;
+using LatrunculiGUI.Windows;
 using Microsoft.Win32;
 using System;
 using System.ComponentModel;
@@ -302,6 +303,11 @@ namespace LatrunculiGUI
             }
 
             Status = $"Hraje {actualPlayer} hráč.";
+        }
+
+        public void ShowAboutWindow()
+        {
+            new AboutWindow().Show();
         }
 
         public void Close()
