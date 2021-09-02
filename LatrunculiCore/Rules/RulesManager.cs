@@ -94,7 +94,7 @@ namespace LatrunculiCore.Moves
                 {
                     throw new EndOfGameException($"Konec hry. Již {MaxEmptyRoundsCount} počet kol nikdo nevyhodil figurku. Vyhrává ČERNÝ hráč s {blackCount} kameny!", ChessBoxState.Black);
                 }
-                if (blackCount > whiteCount)
+                if (whiteCount > blackCount)
                 {
                     throw new EndOfGameException($"Konec hry. Již {MaxEmptyRoundsCount} počet kol nikdo nevyhodil figurku. Vyhrává BÍLÝ hráč s {whiteCount} kameny!", ChessBoxState.White);
                 }
