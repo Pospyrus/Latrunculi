@@ -277,12 +277,18 @@ namespace LatrunculiGUI.Utilities
         }
     }
 
+    public class EnumeratorItem
+    {
+        public int Index { get; set; }
+        public dynamic Value { get; set; }
+    }
+
     public class EnumeratorConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var enumerable = value as IEnumerable<object>;
-            return enumerable.Select((item, index) => new { Index = index, Value = item });
+            return enumerable.Select((item, index) => new EnumeratorItem { Index = index, Value = item });
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

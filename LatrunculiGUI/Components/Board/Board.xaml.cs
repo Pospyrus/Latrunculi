@@ -1,30 +1,47 @@
 ﻿using LatrunculiCore;
 using LatrunculiCore.Desk;
-using LatrunculiCore.Players;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 namespace LatrunculiGUI.Components.Board
 {
     /// <summary>
     /// Interaction logic for Board.xaml
     /// </summary>
-    public partial class Board : UserControl, INotifyPropertyChanged
+    public partial class Board : UserControl
     {
-        public static readonly DependencyProperty GameProperty = DependencyProperty.Register(nameof(Game), typeof(GameContext), typeof(Board), new FrameworkPropertyMetadata(null));
-        public static readonly DependencyProperty ActivePositionProperty = DependencyProperty.Register(nameof(ActivePosition), typeof(ChessBoxPosition), typeof(Board), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty GameProperty = DependencyProperty.Register(nameof(Game), typeof(GameContext), typeof(Board), new FrameworkPropertyMetadata(null, handleGameChanged));
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        private static void handleGameChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var board = d as Board;
+            if (board == null)
+            {
+                return;
+            }
+
+            if (e.OldValue is GameContext gameOld)
+            {
+                gameOld.Latrunculi.PropertyChanged -= board.latrunculiPropertyChanged;
+            }
+
+            if (e.NewValue is GameContext game)
+            {
+                game.Latrunculi.PropertyChanged += board.latrunculiPropertyChanged;
+            }
+        }
+
+        private void latrunculiPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(LatrunculiApp.ActualPlayer) && sender is LatrunculiApp latrunculi && latrunculi.ActualPlayer != null)
+            {
+                ActivePosition = null;
+            }
+        }
+
+        public static readonly DependencyProperty ActivePositionProperty = DependencyProperty.Register(nameof(ActivePosition), typeof(ChessBoxPosition), typeof(Board), new FrameworkPropertyMetadata(null));
 
         public GameContext Game
         {
@@ -45,6 +62,11 @@ namespace LatrunculiGUI.Components.Board
 
         private void handleBoxMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (Game.Latrunculi.ActualPlayer != null)
+            {
+                return;
+            }
+
             var box = sender as Box.Box;
             if (box == null)
             {
@@ -78,11 +100,6 @@ namespace LatrunculiGUI.Components.Board
                 ActivePosition = null;
                 return;
             }
-        }
-
-        private void notifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,17 +28,31 @@ namespace LatrunculiCore.SaveGame
 
         public bool SaveToFile(string fileName)
         {
-            var json = JsonSerializer.Serialize(app.HistoryManager.Steps);
-            prepareSaveFolder(fileName);
-            File.WriteAllText(fileName, json);
-            return true;
+            try
+            {
+                var json = JsonSerializer.Serialize(app.HistoryManager.Steps);
+                prepareSaveFolder(fileName);
+                File.WriteAllText(fileName, json);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public bool LoadFromFile(string fileName)
         {
-            var json = File.ReadAllText(fileName);
-            app.HistoryManager.LoadHistory(JsonSerializer.Deserialize<List<ChangeSet>>(json));
-            return true;
+            try
+            {
+                var json = File.ReadAllText(fileName);
+                app.HistoryManager.LoadHistory(JsonSerializer.Deserialize<List<ChangeSet>>(json));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public IEnumerable<string> GetSavedGamesList()
@@ -66,6 +79,11 @@ namespace LatrunculiCore.SaveGame
         private string getDefaultSaveFilePath(string fileName)
         {
             return $@"{SaveFolder}\{fileName}.json";
+        }
+
+        public void Dispose()
+        {
+            app = null;
         }
     }
 }

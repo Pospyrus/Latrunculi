@@ -22,8 +22,9 @@
         <Grid.RowDefinitions>
             <RowDefinition x:Name="header" Height="auto" />
             <RowDefinition x:Name="content" />
+            <RowDefinition x:Name="status" Height="auto" />
         </Grid.RowDefinitions>
-        <DockPanel Grid.Row="0" Grid.ColumnSpan="2">
+        <DockPanel Grid.Row="0" Grid.ColumnSpan="3">
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_Hra">
                     <MenuItem Header="_Nová hra" Click="handleNovaHra" />
@@ -47,7 +48,8 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="_Nápověda">
-                    <MenuItem Header="_Zobrazit nápovědu" Click="handleZiskatNapovedu" />
+                    <MenuItem Header="_Zobrazit nápovědu nejlepšího tahu" Click="handleZiskatNapovedu" />
+                    <MenuItem Header="_O hře" Click="handleZiskatNapovedu" />
                 </MenuItem>
             </Menu>
         </DockPanel>
@@ -60,5 +62,10 @@
                 </MultiBinding>
             </board:Board.Width>
         </board:Board>
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="3">
+            <StatusBarItem>
+                <TextBlock Text="{Binding Status}" />
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

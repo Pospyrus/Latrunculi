@@ -146,5 +146,12 @@ namespace LatrunculiCore.Moves
                    where desk.GetState(newPosition) == ChessBoxState.Empty
                    select new Move(position, newPosition);
         }
+
+        public void Dispose()
+        {
+            desk = null;
+            allPositions = null;
+            historyManager = null;
+        }
     }
 }

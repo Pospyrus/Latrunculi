@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 
 namespace LatrunculiCore.Desk
 {
@@ -44,6 +43,12 @@ namespace LatrunculiCore.Desk
             }
             StepReverted?.Invoke(this, step);
             DeskChanged?.Invoke(this, null);
+        }
+
+        public void Dispose()
+        {
+            PlayingDesk = null;
+            Size = null;
         }
     }
 }

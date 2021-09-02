@@ -5,6 +5,6 @@ namespace LatrunculiCore.Players
 {
     public interface IPlayer
     {
-        Move Turn(ChessBoxState player, CancellationToken ct = default);
+        Move Turn(LatrunculiApp latrunculi, ChessBoxState player, CancellationToken ct = default);
     }
 }

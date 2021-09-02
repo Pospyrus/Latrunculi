@@ -24,6 +24,8 @@ namespace LatrunculiCore.Desk
         public string HashCode => $"{Letter}{Number}";
 
         public override string ToString() => HashCode;
+        public override int GetHashCode() => HashCode.GetHashCode();
+        public override bool Equals(object obj) => obj is ChessBoxPosition pos && pos == this;
 
         [JsonInclude]
         public int X { get; private set; }
@@ -113,6 +115,11 @@ namespace LatrunculiCore.Desk
             return from ChessBoxPosition newPosition in positions
                    where newPosition != null
                    select newPosition;
+        }
+
+        public void Dispose()
+        {
+            DeskSize = null;
         }
     }
 }

@@ -67,7 +67,7 @@ namespace Latrunculi
                 {
                     player = playerFactory();
                 }
-                var bestMove = player.Turn(app.HistoryManager.ActualPlayer);
+                var bestMove = player.Turn(app, app.HistoryManager.ActualPlayer);
                 if (bestMove != null)
                 {
                     Program.WriteColoredMulti(
@@ -184,11 +184,11 @@ namespace Latrunculi
             new ConsolePlayer(historyPrinter, app.HistoryManager, app.Desk.Size, this);
 
         private IPlayer createRandomPlayer() =>
-            new RandomPlayer(app.Rules);
+            new RandomPlayer();
 
         private IPlayer createMiniMaxPlayer(int depth)
         {
-            var player = new MiniMaxPlayer(depth, app);
+            var player = new MiniMaxPlayer(depth);
             player.DebugPrintDesk += (_, __) =>
             {
                 deskPrinter.PrintDesk();

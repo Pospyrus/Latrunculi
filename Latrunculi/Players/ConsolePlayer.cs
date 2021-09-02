@@ -21,7 +21,7 @@ namespace LatrunculiCore.Players
             this.commandManager = commandManager;
         }
 
-        public Move Turn(ChessBoxState player, CancellationToken ct = default)
+        public Move Turn(LatrunculiApp latrunculi, ChessBoxState player, CancellationToken ct = default)
         {
             Console.Write("Váš tah (start cíl): ");
             string line = Console.ReadLine().Trim().ToLower();

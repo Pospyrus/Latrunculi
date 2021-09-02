@@ -30,5 +30,14 @@ namespace LatrunculiCore.Desk
         {
             return Positions.GetEnumerator();
         }
+
+        public void Dispose()
+        {
+            foreach (var position in Positions)
+            {
+                position.Dispose();
+            }
+            Positions = null;
+        }
     }
 }

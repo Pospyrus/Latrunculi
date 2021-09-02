@@ -1,26 +1,14 @@
-﻿using LatrunculiCore;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LatrunculiGUI.Utilities;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace LatrunculiGUI.Components.History
 {
     /// <summary>
     /// Interaction logic for History.xaml
     /// </summary>
-    public partial class History : UserControl, INotifyPropertyChanged
+    public partial class History : UserControl
     {
         public static readonly DependencyProperty GameProperty = DependencyProperty.Register(nameof(Game), typeof(GameContext), typeof(History), new FrameworkPropertyMetadata(null, handleGameContextChange));
 
@@ -37,8 +25,6 @@ namespace LatrunculiGUI.Components.History
             };
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public GameContext Game
         {
             get { return (GameContext)GetValue(GameProperty); }
@@ -50,11 +36,6 @@ namespace LatrunculiGUI.Components.History
             InitializeComponent();
         }
 
-        private void notifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         private void handleHistoryStartItemMouseDown(object sender, MouseButtonEventArgs e)
         {
             Game.Latrunculi.HistoryManager.GoTo(-1);
@@ -62,8 +43,10 @@ namespace LatrunculiGUI.Components.History
 
         private void handleHistoryItemMouseDown(object sender, MouseButtonEventArgs e)
         {
-            int index = ((sender as Grid)?.DataContext as dynamic)?.Index;
-            Game.Latrunculi.HistoryManager.GoTo(index);
+            if (sender is FrameworkElement element && element.DataContext is EnumeratorItem eItem)
+            {
+                Game.Latrunculi.HistoryManager.GoTo(eItem.Index);
+            }
         }
 
         public void ScrollBottom()

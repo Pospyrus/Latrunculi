@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 
 namespace LatrunculiCore.Desk
 {
@@ -21,6 +20,7 @@ namespace LatrunculiCore.Desk
                 {
                     historyIndex = value;
                     notifyPropertyChanged(nameof(HistoryIndex));
+                    notifyPropertyChanged(nameof(IsLastIndexSelected));
                 }
             }
         }
@@ -42,6 +42,7 @@ namespace LatrunculiCore.Desk
             Steps.Add(step);
             HistoryIndex++;
             notifyPropertyChanged(nameof(Steps));
+            notifyPropertyChanged(nameof(IsLastIndexSelected));
         }
 
         public void Back()
@@ -61,6 +62,7 @@ namespace LatrunculiCore.Desk
             goHistoryBackTo(-1);
             Steps.Clear();
             notifyPropertyChanged(nameof(Steps));
+            notifyPropertyChanged(nameof(IsLastIndexSelected));
         }
 
         public void GoTo(int newIndex)
@@ -79,6 +81,7 @@ namespace LatrunculiCore.Desk
             Steps = new ObservableCollection<ChangeSet>(steps);
             GoTo(Steps.Count + -1);
             notifyPropertyChanged(nameof(Steps));
+            notifyPropertyChanged(nameof(IsLastIndexSelected));
         }
 
         private void goHistoryBackTo(int newIndex)
@@ -102,6 +105,11 @@ namespace LatrunculiCore.Desk
         private void notifyPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Dispose()
+        {
+            Steps = null;
         }
     }
 }

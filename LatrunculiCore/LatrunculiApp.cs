@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Text.Json;
 using LatrunculiCore.Desk;
 using LatrunculiCore.Exceptions;
 using LatrunculiCore.Logger;
@@ -14,6 +12,9 @@ namespace LatrunculiCore
 {
     public class LatrunculiApp : INotifyPropertyChanged
     {
+        private IPlayer whitePlayer;
+        private IPlayer blackPlayer;
+
         public DeskManager Desk { get; private set; }
         public AllPositions AllPositions { get; private set; }
         public DeskHistoryManager HistoryManager { get; private set; }
@@ -23,8 +24,33 @@ namespace LatrunculiCore
         public bool BestMovesDebug = true;
         public bool Debug = false;
 
-        public IPlayer WhitePlayer;
-        public IPlayer BlackPlayer;
+        public IPlayer WhitePlayer
+        {
+            get => whitePlayer;
+            set
+            {
+                whitePlayer = value;
+                notifyPropertyChanged(nameof(WhitePlayer));
+                if (HistoryManager.ActualPlayer == ChessBoxState.White)
+                {
+                    notifyPropertyChanged(nameof(ActualPlayer));
+                }
+            }
+        }
+
+        public IPlayer BlackPlayer
+        {
+            get => blackPlayer;
+            set
+            {
+                blackPlayer = value;
+                notifyPropertyChanged(nameof(BlackPlayer));
+                if (HistoryManager.ActualPlayer == ChessBoxState.Black)
+                {
+                    notifyPropertyChanged(nameof(ActualPlayer));
+                }
+            }
+        }
 
         public IPlayer ActualPlayer => HistoryManager.ActualPlayer == ChessBoxState.Black ? BlackPlayer : WhitePlayer;
 
@@ -54,27 +80,53 @@ namespace LatrunculiCore
             var deskSize = new DeskSize(8, 7);
             AllPositions = new AllPositions(deskSize);
             Desk = new DeskManager(deskSize);
-            Desk.DeskChanged += (__, _) =>
-            {
-                notifyPropertyChanged(nameof(Desk));
-            };
+            Desk.DeskChanged += handleDeskChanged;
             HistoryManager = new DeskHistoryManager();
-            HistoryManager.GoingPrev += (_, changes) => Desk.DoStep(changes);
-            HistoryManager.GoingBack += (_, changes) => Desk.RevertStep(changes);
+            HistoryManager.GoingPrev += handleHistoryGoingPrev;
+            HistoryManager.GoingBack += handleHistoryGoingBack;
+            HistoryManager.PropertyChanged += handleHistoryPropertyChanged;
             Rules = new RulesManager(Desk, AllPositions, HistoryManager);
-            Rules.Moved += (_, step) => HistoryManager.Add(step);
+            Rules.Moved += handleRulesMoved;
             SaveGameManager = new SaveGameManager(this);
             new DeskSpawner(Desk).Spawn();
         }
 
         public Move Turn()
         {
-            var move = ActualPlayer.Turn(HistoryManager.ActualPlayer);
+            var move = ActualPlayer.Turn(this, HistoryManager.ActualPlayer);
             if (move != null)
             {
                 Rules.Move(HistoryManager.ActualPlayer, move);
             }
             return move;
+        }
+
+        private void handleRulesMoved(object sender, ChangeSet step)
+        {
+            HistoryManager.Add(step);
+        }
+
+        private void handleDeskChanged(object sender, EventArgs e)
+        {
+            notifyPropertyChanged(nameof(Desk));
+        }
+
+        private void handleHistoryPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(HistoryManager.HistoryIndex))
+            {
+                notifyPropertyChanged(nameof(ActualPlayer));
+            }
+        }
+
+        private void handleHistoryGoingBack(object sender, ChangeSet changes)
+        {
+            Desk.RevertStep(changes);
+        }
+
+        private void handleHistoryGoingPrev(object sender, ChangeSet changes)
+        {
+            Desk.DoStep(changes);
         }
 
         private string prepareAppDataFolder()
@@ -97,6 +149,27 @@ namespace LatrunculiCore
             var clone = new LatrunculiApp();
             clone.HistoryManager.LoadHistory(HistoryManager.Steps);
             return clone;
+        }
+
+        public void Dispose()
+        {
+            WhitePlayer = null;
+            BlackPlayer = null;
+            HistoryManager.GoingPrev -= handleHistoryGoingPrev;
+            HistoryManager.GoingBack -= handleHistoryGoingBack;
+            HistoryManager.PropertyChanged -= handleHistoryPropertyChanged;
+            HistoryManager.Dispose();
+            HistoryManager = null;
+            Rules.Moved -= handleRulesMoved;
+            Rules.Dispose();
+            Rules = null;
+            Desk.DeskChanged -= handleDeskChanged;
+            Desk.Dispose();
+            Desk = null;
+            AllPositions.Dispose();
+            AllPositions = null;
+            SaveGameManager.Dispose();
+            SaveGameManager = null;
         }
     }
 }

@@ -1,3 +1,4 @@
+using LatrunculiCore;
 using LatrunculiCore.Desk;
 using System;
 using System.Linq;
@@ -7,46 +8,38 @@ namespace Latrunculi
 {
     public class DeskToString
     {
-        private DeskManager desk;
-        private DeskHistoryManager historyManager;
-
-        public DeskToString(DeskManager desk, DeskHistoryManager historyManager)
+        public string GetDeskAsString(LatrunculiApp latrunculi)
         {
-            this.desk = desk;
-            this.historyManager = historyManager;
-        }
-
-        public string GetDeskAsString()
-        {
+            var desk = latrunculi.Desk;
             StringBuilder sb = new StringBuilder(2 * desk.Size.Width * desk.Size.Height);
-            sb.Append(getLineSeparator());
+            sb.Append(getLineSeparator(desk));
             for (int y = desk.Size.Height - 1; y >= 0; y--)
             {
                 string inner = string.Join(" | ",
                     Enumerable.Range(0, desk.Size.Width)
-                        .Select(x => getCheckBox(new ChessBoxPosition(desk.Size, x, y)))
+                        .Select(x => getCheckBox(latrunculi, new ChessBoxPosition(desk.Size, x, y)))
                 );
                 sb.Append($"{y + 1} | {inner} |\n");
-                sb.Append(getLineSeparator());
+                sb.Append(getLineSeparator(desk));
             }
-            sb.Append(getLetters());
+            sb.Append(getLetters(desk));
             return sb.ToString();
         }
 
-        private string getLineSeparator()
+        private string getLineSeparator(DeskManager desk)
         {
             return $"  {new String('-', desk.Size.Width * 4 + 1)}\n";
         }
 
-        private string getLetters()
+        private string getLetters(DeskManager desk)
         {
             return $"  {string.Concat(Enumerable.Range(0, desk.Size.Width).Select(i => $"  {(char)('a' + i)} "))}\n";
         }
 
-        private string getCheckBox(ChessBoxPosition position)
+        private string getCheckBox(LatrunculiApp latrunculi, ChessBoxPosition position)
         {
-            var lastChange = historyManager.LastStep?.Changes.Find(change => change.Position.Index == position.Index);
-            var state = desk.PlayingDesk[position.X, position.Y];
+            var lastChange = latrunculi.HistoryManager.LastStep?.Changes.Find(change => change.Position.Index == position.Index);
+            var state = latrunculi.Desk.PlayingDesk[position.X, position.Y];
             string symbol;
             switch (state)
             {

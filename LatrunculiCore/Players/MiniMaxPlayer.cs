@@ -10,7 +10,6 @@ namespace LatrunculiCore.Players
 {
     public class MiniMaxPlayer : IPlayer
     {
-        private LatrunculiApp app;
         private int depth;
         private Random random = new Random();
         private FileLogger logger;
@@ -19,29 +18,28 @@ namespace LatrunculiCore.Players
 
         public event EventHandler DebugPrintDesk;
 
-        public MiniMaxPlayer(int depth, LatrunculiApp app)
+        public MiniMaxPlayer(int depth)
         {
-            this.app = app;
             this.depth = depth;
-            deskToString = new DeskToString(app.Desk, app.HistoryManager);
+            deskToString = new DeskToString();
         }
 
-        public Move Turn(ChessBoxState player, CancellationToken ct = default)
+        public Move Turn(LatrunculiApp latrunculi, ChessBoxState player, CancellationToken ct = default)
         {
-            return getBestMove(player, ct);
+            return getBestMove(latrunculi, player, ct);
         }
 
-        private Move getBestMove(ChessBoxState player, CancellationToken ct = default)
+        private Move getBestMove(LatrunculiApp latrunculi, ChessBoxState player, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
             logger?.Dispose();
             deskLogger?.Dispose();
-            logger = new FileLogger($"{app.HistoryManager.ActualRound} - {player} - minimax {depth}");
-            deskLogger = new FileLogger($"{app.HistoryManager.ActualRound} - {player} - minimax {depth} - desk");
+            logger = new FileLogger($"{latrunculi.HistoryManager.ActualRound} - {player} - minimax {depth}");
+            deskLogger = new FileLogger($"{latrunculi.HistoryManager.ActualRound} - {player} - minimax {depth} - desk");
 
-            var validMoves = app.Rules.GetAllValidMoves(player).ToArray();
-            IEnumerable<(Move move, int evaluation, int bestMovesCount)> moves = validMoves.Select(move => (minMaxRecursive(depth, move, ct))).ToArray();
-            if (app.Debug)
+            var validMoves = latrunculi.Rules.GetAllValidMoves(player).ToArray();
+            IEnumerable<(Move move, int evaluation, int bestMovesCount)> moves = validMoves.Select(move => (minMaxRecursive(latrunculi, depth, move, ct))).ToArray();
+            if (latrunculi.Debug)
             {
                 logger.WriteLine("############################# Result");
                 foreach (var moveInfo in moves)
@@ -49,7 +47,7 @@ namespace LatrunculiCore.Players
                     logger.WriteLine($"{moveInfo.evaluation} {moveInfo.move}, count: {moveInfo.bestMovesCount}");
                 }
             }
-            if (app.BestMovesDebug)
+            if (latrunculi.BestMovesDebug)
             {
                 Console.WriteLine();
                 foreach (var moveInfo in moves)
@@ -76,43 +74,43 @@ namespace LatrunculiCore.Players
             return bestForwardMoves.Skip(random.Next(bestForwardMoves.Count()) - 1).First();
         }
 
-        private (Move move, int evaluation, int bestMovesCount) minMaxRecursive(int depth, Move move, CancellationToken ct = default)
+        private (Move move, int evaluation, int bestMovesCount) minMaxRecursive(LatrunculiApp latrunculi, int depth, Move move, CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
             try
             {
-                app.Rules.Move(app.HistoryManager.ActualPlayer, move);
+                latrunculi.Rules.Move(latrunculi.HistoryManager.ActualPlayer, move);
                 var indentation = this.depth - depth;
-                var moves = string.Join(';', app.HistoryManager.Steps.TakeLast(this.depth - depth + 1)
+                var moves = string.Join(';', latrunculi.HistoryManager.Steps.TakeLast(this.depth - depth + 1)
                                 .Select(step => step.Move.ToString()));
-                if (app.Debug)
+                if (latrunculi.Debug)
                 {
-                    deskLogger.WriteLine($"{app.HistoryManager.ActualPlayer} {moves}");
-                    deskLogger.WriteLine(deskToString.GetDeskAsString());
+                    deskLogger.WriteLine($"{latrunculi.HistoryManager.ActualPlayer} {moves}");
+                    deskLogger.WriteLine(deskToString.GetDeskAsString(latrunculi));
                 }
                 (Move move, int evaluation, int bestMovesCount)? evaluation = null;
-                if (depth == 0 || app.IsEnded)
+                if (depth == 0 || latrunculi.IsEnded)
                 {
-                    evaluation = (move, evaluationPlayer(), 1);
-                    if (app.Debug && evaluation.Value.evaluation != 0)
+                    evaluation = (move, evaluationPlayer(latrunculi), 1);
+                    if (latrunculi.Debug && evaluation.Value.evaluation != 0)
                     {
-                        logger.WriteLine($"{app.HistoryManager.ActualPlayer} {moves} ({evaluation})", indentation);
+                        logger.WriteLine($"{latrunculi.HistoryManager.ActualPlayer} {moves} ({evaluation})", indentation);
                     }
                 }
                 else
                 {
                     //logger.WriteLine($"Start {app.HistoryManager.ActualPlayer} {moves}", indentation);
-                    var evaluations = app.Rules.GetAllValidMoves(app.HistoryManager.ActualPlayer)
+                    var evaluations = latrunculi.Rules.GetAllValidMoves(latrunculi.HistoryManager.ActualPlayer)
                         .ToArray()
-                        .Select(nextMove => minMaxRecursive(depth - 1, nextMove, ct))
+                        .Select(nextMove => minMaxRecursive(latrunculi, depth - 1, nextMove, ct))
                         .ToArray();
                     var maxEvaluation = evaluations.Max(move => move.evaluation);
                     var maxCount = evaluations
                         .Where(eval => eval.evaluation == maxEvaluation)
                         .Sum(eval => eval.bestMovesCount);
-                    if (app.Debug && maxEvaluation != 0)
+                    if (latrunculi.Debug && maxEvaluation != 0)
                     {
-                        logger.WriteLine($"End {app.HistoryManager.ActualPlayer} {moves} ({maxEvaluation}, count: {maxCount})", indentation);
+                        logger.WriteLine($"End {latrunculi.HistoryManager.ActualPlayer} {moves} ({maxEvaluation}, count: {maxCount})", indentation);
                     }
                     evaluation = (move, maxEvaluation, maxCount);
                 }
@@ -120,18 +118,18 @@ namespace LatrunculiCore.Players
             }
             finally
             {
-                app.HistoryManager.Back();
+                latrunculi.HistoryManager.Back();
             }
         }
 
-        private int evaluationPlayer()
+        private int evaluationPlayer(LatrunculiApp latrunculi)
         {
-            var evaluation = app.HistoryManager.Steps.TakeLast(depth + 1).Reverse().Select((step, index) =>
+            var evaluation = latrunculi.HistoryManager.Steps.TakeLast(depth + 1).Reverse().Select((step, index) =>
                 step.CapturedCount * (index + 1) * (index % 2 == 0 ? 1 : -1)
             ).Sum();
-            if (app.Debug && evaluation != 0)
+            if (latrunculi.Debug && evaluation != 0)
             {
-                string steps = string.Join(", ", app.HistoryManager.Steps.TakeLast(depth + 1).Select(step => step.Move));
+                string steps = string.Join(", ", latrunculi.HistoryManager.Steps.TakeLast(depth + 1).Select(step => step.Move));
                 Console.WriteLine($"{steps}: {evaluation}");
                 DebugPrintDesk?.Invoke(this, null);
             }
