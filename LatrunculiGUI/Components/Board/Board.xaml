@@ -49,8 +49,9 @@
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <ItemsControl x:Name="numbers" Grid.Column="2" ItemsSource="{Binding Latrunculi.Desk.Size.Height, Converter={StaticResource numbersRevertedConverter}}" HorizontalAlignment="Right" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate>
@@ -80,7 +81,7 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Grid x:Name="boardGrid" Grid.Column="1">
+        <Grid x:Name="boardGrid" Grid.Column="1" Margin="0,4,0,0">
             <ItemsControl x:Name="boxes" ItemsSource="{Binding Latrunculi.AllPositions}" Background="Gray" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                   Width="{Binding Value.Width, Source={StaticResource deskSize}}"
                   Height="{Binding Value.Height, Source={StaticResource deskSize}}">

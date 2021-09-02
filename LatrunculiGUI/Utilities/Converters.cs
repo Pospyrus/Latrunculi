@@ -277,6 +277,25 @@ namespace LatrunculiGUI.Utilities
         }
     }
 
+    public class BoardHeightConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var deskSize = values.GetValueByIndex<DeskSize>(2);
+            var boxSize = (double)(new BoxSizeConverter().Convert(values, targetType, parameter, culture));
+            if (deskSize == null)
+            {
+                return boxSize * 7.5;
+            }
+            return boxSize * (deskSize.Height + 0.5);
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class EnumeratorItem
     {
         public int Index { get; set; }

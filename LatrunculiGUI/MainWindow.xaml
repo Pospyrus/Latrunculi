@@ -14,19 +14,19 @@
         Title="Latrunculi" Height="800" Width="1200">
     <Window.Resources>
         <utils:BoardWidthConverter x:Key="boardWidthConverter" />
+        <utils:BoardHeightConverter x:Key="boardHeightConverter" />
     </Window.Resources>
     <Grid x:Name="mainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="sidebar" Width="5*" MinWidth="320"  MaxWidth="500" />
-            <ColumnDefinition />
-            <ColumnDefinition x:Name="boardColumn" Width="auto" />
+            <ColumnDefinition x:Name="boardColumn" Width="9*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition x:Name="header" Height="auto" />
             <RowDefinition x:Name="contentRow" />
             <RowDefinition x:Name="status" Height="auto" />
         </Grid.RowDefinitions>
-        <DockPanel Grid.Row="0" Grid.ColumnSpan="3">
+        <DockPanel Grid.Row="0" Grid.ColumnSpan="2">
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_Hra">
                     <MenuItem Header="_Nová hra" Click="handleNovaHra" />
@@ -56,23 +56,24 @@
             </Menu>
         </DockPanel>
         <history:History x:Name="history" Grid.Row="1" Grid.Column="0" Margin="0,0,16,0" Game="{Binding}" />
-        <Grid Grid.Row="1" Grid.Column="2" x:Name="boardGrid">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <board:Board x:Name="board" Game="{Binding}" HorizontalAlignment="Right">
+        <ScrollViewer Grid.Row="1" Grid.Column="1" x:Name="boardScroll">
+            <board:Board x:Name="board" Game="{Binding}" HorizontalAlignment="Right" VerticalAlignment="Top">
                 <board:Board.Width>
                     <MultiBinding Converter="{StaticResource boardWidthConverter}">
                         <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}" />
                         <Binding Path="Latrunculi.Desk.Size" />
                     </MultiBinding>
                 </board:Board.Width>
+                <board:Board.Height>
+                    <MultiBinding Converter="{StaticResource boardHeightConverter}">
+                        <Binding Path="ViewportWidth" ElementName="boardScroll" />
+                        <Binding Path="ViewportHeight" ElementName="boardScroll" />
+                        <Binding Path="Latrunculi.Desk.Size" />
+                    </MultiBinding>
+                </board:Board.Height>
             </board:Board>
-        </Grid>
-        <StatusBar Grid.Row="2" Grid.ColumnSpan="3">
+        </ScrollViewer>
+        <StatusBar Grid.Row="2" Grid.ColumnSpan="2">
             <StatusBarItem Margin="8" HorizontalAlignment="Center">
                 <TextBlock Text="{Binding Status}" FontSize="22" />
             </StatusBarItem>

@@ -284,7 +284,7 @@ namespace LatrunculiGUI
 
             if (!Latrunculi.HistoryManager.IsLastIndexSelected && Latrunculi.ActualPlayer != null)
             {
-                Status = $"Proházení historie tahů... Pro pokračování běžte na konec historie.";
+                Status = $"Procházení historie tahů... Pro pokračování běžte na konec historie.";
                 return;
             }
 
