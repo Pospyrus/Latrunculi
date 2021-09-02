@@ -2,7 +2,6 @@
 using System;
 using System.Globalization;
 using System.Windows;
-using System.Collections;
 using System.Windows.Data;
 using System.Windows.Media;
 using LatrunculiGUI.Components.Box;
@@ -11,25 +10,6 @@ using System.Collections.Generic;
 
 namespace LatrunculiGUI.Utilities
 {
-    public static class IListExtensions
-    {
-        public static TReturn GetValueByIndex<TReturn>(this IList source, int index, TReturn defaultValue = default)
-        {
-            if (source == null || index >= source.Count)
-            {
-                return defaultValue;
-            }
-            try
-            {
-                return (TReturn)(dynamic)(source[index]);
-            }
-            catch
-            {
-                return default;
-            }
-        }
-    }
-
     public class BoxFillColorConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -168,17 +148,6 @@ namespace LatrunculiGUI.Utilities
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
-        }
-    }
-
-    public class BindingProperty : DependencyObject
-    {
-        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), typeof(object), typeof(BindingProperty), new FrameworkPropertyMetadata(10.0));
-
-        public object Value
-        {
-            get { return GetValue(ValueProperty); }
-            set { SetValue(ValueProperty, value); }
         }
     }
 
