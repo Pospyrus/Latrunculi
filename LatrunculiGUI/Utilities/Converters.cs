@@ -173,7 +173,7 @@ namespace LatrunculiGUI.Utilities
 
     public class BindingProperty : DependencyObject
     {
-        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), typeof(object), typeof(BindingProperty), new FrameworkPropertyMetadata(15.10));
+        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), typeof(object), typeof(BindingProperty), new FrameworkPropertyMetadata(10.0));
 
         public object Value
         {
@@ -441,6 +441,35 @@ namespace LatrunculiGUI.Utilities
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class FontSizeConverter : DependencyObject, IValueConverter
+    {
+        public static readonly DependencyProperty FontSizeProperty = DependencyProperty.Register(nameof(FontSize), typeof(double), typeof(FontSizeConverter), new FrameworkPropertyMetadata(0.0));
+        public static readonly DependencyProperty ScalingProperty = DependencyProperty.Register(nameof(Scaling), typeof(double), typeof(FontSizeConverter), new FrameworkPropertyMetadata(800.0));
+
+        public double FontSize
+        {
+            get { return (double)GetValue(FontSizeProperty); }
+            set { SetValue(FontSizeProperty, value); }
+        }
+
+        public double Scaling
+        {
+            get { return (double)GetValue(ScalingProperty); }
+            set { SetValue(ScalingProperty, value); }
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var viewport = value as double?;
+            return FontSize * (viewport / Scaling);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

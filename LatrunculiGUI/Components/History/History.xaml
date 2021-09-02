@@ -31,6 +31,7 @@
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
 
+        <utils:FontSizeConverter x:Key="fontSizeFooterConverter" FontSize="34" Scaling="700" />
         <utils:EnumeratorConverter x:Key="enumeratorConverter" />
         <utils:IncrementConverter x:Key="incrementConverter" />
         <utils:MovePlayerConverter x:Key="movePlayerConverter" />
@@ -43,7 +44,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="Historie tahů" FontSize="40" />
+        <TextBlock Grid.Row="0" FontSize="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource fontSizeFooterConverter}}">Historie tahů</TextBlock>
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" x:Name="historyScroll">
             <StackPanel Orientation="Vertical">
                 <Grid MouseDown="handleHistoryStartItemMouseDown">

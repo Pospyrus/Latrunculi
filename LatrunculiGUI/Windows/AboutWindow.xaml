@@ -34,7 +34,7 @@
             <TextBlock Style="{StaticResource Paragraph}">• Vyřadit ze hry co nejvíce soupeřových kamenů.</TextBlock>
 
             <TextBlock Style="{StaticResource HeaderText}">Výchozí situace</TextBlock>
-            <TextBlock Style="{StaticResource Paragraph}">• Na začátku hry stojí všechny kameny proti sobě v krajních řadách desky 8x7 (viz obrázek).</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Na začátku hry stojí všechny kameny proti sobě v krajních řadách desky 8x7.</TextBlock>
 
             <TextBlock Style="{StaticResource HeaderText}">Hra</TextBlock>
             <TextBlock Style="{StaticResource Paragraph}">• Kameny se pohybují ortogonálně o jedno pole.</TextBlock>
