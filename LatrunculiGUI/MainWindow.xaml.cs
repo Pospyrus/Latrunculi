@@ -69,12 +69,12 @@ namespace LatrunculiGUI
 
         private void handleBilyHracPokrocily(object sender, RoutedEventArgs e)
         {
-            Game.SetGamePlayerToExpert(ChessBoxState.White);
+            Game.SetGamePlayerToMedium(ChessBoxState.White);
         }
 
         private void handleBilyHracExpert(object sender, RoutedEventArgs e)
         {
-            Game.SetGamePlayerToHuman(ChessBoxState.White);
+            Game.SetGamePlayerToExpert(ChessBoxState.White);
         }
 
         private void handleCernyHracClovek(object sender, RoutedEventArgs e)
@@ -89,12 +89,12 @@ namespace LatrunculiGUI
 
         private void handleCernyHracPokrocily(object sender, RoutedEventArgs e)
         {
-            Game.SetGamePlayerToExpert(ChessBoxState.Black);
+            Game.SetGamePlayerToMedium(ChessBoxState.Black);
         }
 
         private void handleCernyHracExpert(object sender, RoutedEventArgs e)
         {
-            Game.SetGamePlayerToHuman(ChessBoxState.Black);
+            Game.SetGamePlayerToExpert(ChessBoxState.Black);
         }
     }
 }
