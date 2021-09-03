@@ -51,6 +51,57 @@ namespace LatrunculiGUI.Utilities
         }
     }
 
+    public class VisibleIfConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var boolValue = value as bool?;
+            if (boolValue.GetValueOrDefault())
+            {
+                return Visibility.Visible;
+            }
+            return Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class CollapsedIfConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var boolValue = value as bool?;
+            if (boolValue.GetValueOrDefault())
+            {
+                return Visibility.Collapsed;
+            }
+            return Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class AnyVisibleConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            return values.Any(value => value is Visibility visibility && visibility == Visibility.Visible) ?
+                Visibility.Visible :
+                Visibility.Collapsed;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class BoxPositionHorizontalConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -305,6 +356,35 @@ namespace LatrunculiGUI.Utilities
         {
             var number = value as int?;
             return number.GetValueOrDefault() > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class VisibleIfValueConverter : DependencyObject, IValueConverter
+    {
+        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), typeof(int?), typeof(VisibleIfValueConverter), new FrameworkPropertyMetadata(null));
+        public static readonly DependencyProperty NegateProperty = DependencyProperty.Register(nameof(Negate), typeof(bool), typeof(VisibleIfValueConverter), new FrameworkPropertyMetadata(false));
+
+        public int? Value
+        {
+            get { return (int?)GetValue(ValueProperty); }
+            set { SetValue(ValueProperty, value); }
+        }
+
+        public bool Negate
+        {
+            get { return (bool)GetValue(NegateProperty); }
+            set { SetValue(NegateProperty, value); }
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var number = value as int?;
+            return ((number == Value) ^ Negate) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -15,6 +15,9 @@
     <Window.Resources>
         <utils:BoardWidthConverter x:Key="boardWidthConverter" />
         <utils:BoardHeightConverter x:Key="boardHeightConverter" />
+        <utils:CollapsedIfConverter x:Key="collapsedIfConverter" />
+        <utils:AnyVisibleConverter x:Key="anyVisible" />
+        <utils:VisibleIfValueConverter x:Key="notFirstIndex" Value="-1" Negate="true" />
         <utils:FontSizeConverter x:Key="fontSizeFooterConverter" FontSize="22" Scaling="700" />
     </Window.Resources>
     <Grid x:Name="mainGrid">
@@ -33,6 +36,18 @@
                     <MenuItem Header="_Nová hra" Click="handleNovaHra" />
                     <MenuItem Header="N_ačíst hru" Click="handleNacistHru" />
                     <MenuItem Header="U_ložit hru" Click="handleUlozitHru" />
+                    <Separator>
+                        <Separator.Visibility>
+                            <MultiBinding Converter="{StaticResource anyVisible}">
+                                <Binding Path="Latrunculi.HistoryManager.HistoryIndex" Converter="{StaticResource notFirstIndex}" />
+                                <Binding Path="Latrunculi.HistoryManager.IsLastIndexSelected" Converter="{StaticResource collapsedIfConverter}" />
+                            </MultiBinding>
+                        </Separator.Visibility>
+                    </Separator>
+                    <MenuItem Header="Jít o krok zpět" Click="handleKrokZpet"
+                              Visibility="{Binding Latrunculi.HistoryManager.HistoryIndex, Converter={StaticResource notFirstIndex}}" />
+                    <MenuItem Header="Jít o krok dopředu" Click="handleKrokVpred"
+                              Visibility="{Binding Latrunculi.HistoryManager.IsLastIndexSelected, Converter={StaticResource collapsedIfConverter}}" />
                     <Separator />
                     <MenuItem Header="_Ukončit hru" Click="handleUkoncit" />
                 </MenuItem>

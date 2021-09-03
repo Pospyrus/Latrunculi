@@ -96,5 +96,15 @@ namespace LatrunculiGUI
         {
             Game.SetGamePlayerToExpert(ChessBoxState.Black);
         }
+
+        private void handleKrokZpet(object sender, RoutedEventArgs e)
+        {
+            Game.Latrunculi.HistoryManager.Back();
+        }
+
+        private void handleKrokVpred(object sender, RoutedEventArgs e)
+        {
+            Game.Latrunculi.HistoryManager.Prev();
+        }
     }
 }
