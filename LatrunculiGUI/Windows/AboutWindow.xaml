@@ -46,6 +46,34 @@
             <TextBlock Style="{StaticResource HeaderText}">Konec hry</TextBlock>
             <TextBlock Style="{StaticResource Paragraph}">• Hra končí, jestliže jeden z hráčů ztratí všechny své kameny nebo se hráči dostanou do situace, kdy ani jeden hráčů není schopen během 30 tahů zajmout cizí kámen.</TextBlock>
             <TextBlock Style="{StaticResource Paragraph}">• Vítězem je hráč, kterému na desce zbylo více kamenů.</TextBlock>
+
+            <TextBlock Style="{StaticResource MainHeaderText}" Margin="0,20,0,0">Ovládání hry</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">Hra se spustí a je přednastavena na 2 lidské hráče. Je možné začít hrát kliknutím na pole s vlastní figurkou, se kterou chceme pohybovat a pak na pole, kam ji chceme přemístit. Pokud je tah validní, tak se provede a hraje kráč další. Dole je vždy napsané, který hráč je zrovna na tahu.</TextBlock>
+
+            <TextBlock Style="{StaticResource HeaderText}">Změna typu hráče</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Pokud chci na začátku nebo kdykoliv v průběhu hry změnit typ hráče na lidského nebo počítačového, tak stačí kliknout v kontextovém menu na položku Hráči → "Barva hráče kterého chceme upravit" → "Nový typ hráče" - lidský (Člověk) nebo počítačový podle obtížnosti (Začátečník, Pokročilý, Expert).</TextBlock>
+
+            <TextBlock Style="{StaticResource HeaderText}">Historie tahů</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Při každém zahraném tahu se zobrazí nový položka v historii tahů.</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Při kliknutí na libovolnou položku historii se hra zastaví a hrací deska ukáže stav, jak po vykonaném tahu vypadala.</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Alternativně lze použít pro posun v historii v menu "Hra → Jít o krok zpět" nebo "Hra → Jít o krok dopředu".</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Aktivní položka má černé pozadí.</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Pokud jako lidský hráč nemám označený poslední tah a zahraji nový tah, tak se všechny další tahy v historii přepíšou novým tahem.</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Pokud hraje počítačový hráč a chci, aby hra pokračovala, tak vyberu poslední položku v historii. Pokud nenastal konec hry, tak hra pokračuje.</TextBlock>
+
+            <TextBlock Style="{StaticResource HeaderText}">Uložení a načtení hry</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Hru je možné v jakémkoliv stavu uložit nebo načíst. Ukládá se do souboru s příponou ".json".</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Pro uložení kliknout na Hra → Uložit hru. Zobrazí se dialog pro výběr umístění souboru, do kterého se má hra uložit.</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Pro načtení kliknout na Hra → Načíst hru. Zobrazí se dialog pro výběr souboru souboru, ze kterého se má hra načíst.</TextBlock>
+
+            <TextBlock Style="{StaticResource HeaderText}">Nápověda nejlepšího tahu</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Pokud hraji jako člověk, tak můžu zažádat o nejlepšího možného nápovědu tahu.</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Stačí stisknout klávesu "H" nebo vybrat ve menu Nápověda → Zobrazit nápovědu nejlepšího tahu.</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Nejlepší možný tah se na desce modře zvýrazní.</TextBlock>
+
+            <TextBlock Style="{StaticResource HeaderText}">Konec hry</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Když skončí hra, tak lze pořád prohlížet historii tahů a vracet se.</TextBlock>
+            <TextBlock Style="{StaticResource Paragraph}">• Pokud chci novou hru, tak v menu stačí vybrat položka Hra → Nová hra.</TextBlock>
         </StackPanel>
     </ScrollViewer>
 </Window>
